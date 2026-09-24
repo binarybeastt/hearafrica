@@ -106,7 +106,7 @@ test('the route accepts Yorùbá lesson lines and nothing for Live languages', (
   // The bug this guards: the map was keyed wrongly and came out empty, so
   // every Yorùbá line was refused and the lesson fell silent.
   assert.equal(script.get('Èdè Yorùbá')?.size, new Set(encounters.spokenLines(YORUBA_ENCOUNTER)).size);
-  assert.ok(script.get('Èdè Yorùbá').has('Ẹ jọ̀ọ́ ma, èló ni agbọ̀n tòmátì yìí?'));
+  assert.ok(script.get('Èdè Yorùbá').has('Ẹ jọ̀ọ́ ma, báwo lẹ ṣe lé tòmátì yín?'));
   assert.equal(script.has('Kiswahili'), false);
 });
 
@@ -140,7 +140,7 @@ function cacheWith({ ttsBytes = 48000 * 3 } = {}) {
   return { cache, calls };
 }
 
-const LINE = 'Ẹ jọ̀ọ́ ma, èló ni agbọ̀n tòmátì yìí?';
+const LINE = 'Ẹ jọ̀ọ́ ma, báwo lẹ ṣe lé tòmátì yín?';
 
 test('a Yorùbá line is spoken by TTS and never opens a Live socket', async () => {
   const { cache, calls } = cacheWith();
@@ -150,6 +150,17 @@ test('a Yorùbá line is spoken by TTS and never opens a Live socket', async () 
   assert.equal(calls.fetch.length, 1);
   assert.equal(calls.fetch[0].url, '/api/speech');
   assert.deepEqual(calls.fetch[0].body, { text: LINE, languageName: 'Èdè Yorùbá', slow: true });
+});
+
+test('rewording a line replaces its cached audio', async () => {
+  const { cache, calls } = cacheWith();
+  const request = { key: 'yo_s3:target', languageName: 'Èdè Yorùbá' };
+  await cache.getLineAudio({ ...request, text: LINE });
+  await cache.getLineAudio({ ...request, text: LINE });
+  assert.equal(calls.fetch.length, 1);
+  // Same slot, new wording: the old reading must not be replayed.
+  await cache.getLineAudio({ ...request, text: 'Ẹ jọ̀ọ́ ma, báwo lẹ ṣe ń ta tòmátì yín?' });
+  assert.equal(calls.fetch.length, 2);
 });
 
 test('other languages stay on the Live reader', async () => {

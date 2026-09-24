@@ -99,12 +99,23 @@ export interface SpeakRequest {
   slow?: boolean;
 }
 
+/** A short, stable fingerprint of a line's text (FNV-1a). */
+function fingerprint(text: string): string {
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < text.length; i++) {
+    hash ^= text.charCodeAt(i);
+    hash = Math.imul(hash, 0x01000193);
+  }
+  return (hash >>> 0).toString(36);
+}
+
 /**
- * TTS takes are cached apart from Live ones, so moving a language to TTS
- * replaces its lines rather than replaying the Live takes already stored.
+ * The text is part of the key, so rewording a line replaces its audio instead
+ * of replaying the old reading from a slot id that did not change. TTS takes
+ * are kept apart from Live ones, so moving a language to TTS replaces them too.
  */
 function cacheKeyOf(request: SpeakRequest): string {
-  const key = request.slow ? `${request.key}:slow` : request.key;
+  const key = `${request.key}:${fingerprint(request.text)}${request.slow ? ':slow' : ''}`;
   return usesTts(request.languageName) ? `tts:${key}` : key;
 }
 

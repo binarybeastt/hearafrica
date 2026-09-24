@@ -428,7 +428,8 @@ function makePriceCard(): { mesh: THREE.Mesh; setPrice: (price: number | null) =
     ctx.fillText('TÒMÁTÌ', 128, 52);
 
     ctx.font = 'bold 56px Georgia, serif';
-    ctx.fillText(price === null ? '₦ ?' : `₦${price.toLocaleString()}`, 128, 116);
+    // Squeezed rather than clipped when a bulk price runs to six characters.
+    ctx.fillText(price === null ? '₦ ?' : `₦${price.toLocaleString()}`, 128, 116, 216);
     texture.needsUpdate = true;
   };
 

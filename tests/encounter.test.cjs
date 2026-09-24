@@ -296,3 +296,17 @@ test("the model's coaching note is what the learner is shown", () => {
   state = reduce(state, wrong('The second syllable rises.'), encounter);
   assert.equal(state.feedback, 'The second syllable rises.');
 });
+
+test('every chunk a script step names exists in its learning content', () => {
+  // A mistyped chunk id silently drops its tile and, for a respect chunk, the
+  // mandatory-word check with it.
+  const { ENCOUNTERS } = load('src/data/encounters.ts');
+  const { getLearningContent } = load('src/data/learning-content.ts');
+  for (const encounter of Object.values(ENCOUNTERS)) {
+    const content = getLearningContent(encounter.scenarioId);
+    assert.ok(content, encounter.id);
+    for (const step of encounter.steps) {
+      for (const id of step.chunks ?? []) assert.ok(content.chunks[id], `${encounter.id} ${step.id} ${id}`);
+    }
+  }
+});

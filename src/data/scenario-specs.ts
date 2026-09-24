@@ -70,17 +70,17 @@ export const BALOGUN_IYA_BISI_SPEC: ScenarioSpec = {
   languageId: 'yoruba',
   languageName: 'Èdè Yorùbá',
   languageCode: 'yo',
-  title: 'Bargaining for Fresh Tomatoes at Balogun Market',
+  title: 'Buying a Basket of Tomatoes at Balogun Market',
   location: 'Balogun Market, Lagos Island',
   traderName: 'Iya Bisi',
   traderRole: 'Elder Tomato Trader',
   traderHonorific: 'Ìyá',
   traderAgeGroup: 'elder',
   traderPronouns: { subject: 'she', object: 'her' },
-  commodity: 'Basket of ripe tomatoes (Tòmátì)',
+  commodity: 'Tomatoes by the measure: small heaps, paint buckets, baskets (agbọ̀n)',
   currency: { symbol: '₦', step: 100 },
-  initialAskingPrice: 2500,
-  targetFairPrice: 1800,
+  initialAskingPrice: 60000,
+  targetFairPrice: 50000,
   startingRapport: 40,
   avatarColors: {
     bg: '#F2A1CB',
@@ -91,8 +91,8 @@ export const BALOGUN_IYA_BISI_SPEC: ScenarioSpec = {
     who: 'Iya Bisi is an established, respected Yoruba trader selling fresh tomatoes in Balogun Market.',
     culturalRule:
       'She is an elder woman (Ìyá / Ẹ̀gbọ́n). Respect markers ("Ẹ", "Ẹ káàárọ̀ ma") are non-negotiable before mentioning prices. In Lagos markets, bargaining is about building personal trust and rapport, not adversarial arguing.',
-    goal: 'Buy a fresh basket of tomatoes for under ₦1,800 while leaving a warm personal impression.',
-    targetPriceText: 'Target: ₦1,800 or less (Starting ask is ₦2,500)',
+    goal: 'Buy a basket of tomatoes for ₦50,000 or less, and leave with your jàra and a warm impression.',
+    targetPriceText: 'Target: ₦50,000 or less (Starting ask is ₦60,000)',
   },
   repairPhrases: [
     {
@@ -134,55 +134,57 @@ export const BALOGUN_IYA_BISI_SPEC: ScenarioSpec = {
     {
       id: 'p_yo_ask',
       intent: 'Ask for price respectfully',
-      fullYo: 'Ẹ jọ̀ọ́ ma, èló ni agbọ̀n tòmátì yìí?',
-      phonetic: 'Eh jaw mah, eh-loh nee ahg-bawn toh-mah-tee yee?',
-      en: 'Please ma, how much is this basket of tomatoes?',
-      clueWord: 'Èló ni...',
+      fullYo: 'Ẹ jọ̀ọ́ ma, báwo lẹ ṣe lé tòmátì yín?',
+      phonetic: 'Eh jaw mah, bah-woh leh sheh leh toh-mah-tee yeen?',
+      en: 'Please ma, how are you selling your tomatoes?',
+      clueWord: 'Báwo lẹ ṣe lé...',
       targetStep: 'ask',
       expectedRapportDelta: +10,
     },
     {
       id: 'p_yo_counter',
-      intent: 'Polite initial counter-offer (₦1,500)',
-      fullYo: 'Hà, ó wọ́n díẹ̀ ma! Ẹ jọ̀ọ́, ẹ gbà ₦1,500.',
-      phonetic: 'Hah, oh wawn dee-eh mah! Eh jaw, eh gbah naira ẹgbẹ̀rún kan àti ọgọ́rùn-ún márùn-ún.',
-      en: 'Ah, that is a bit expensive ma! Please take ₦1,500.',
+      intent: 'Ask for her last price',
+      fullYo: 'Ó wọ́n díẹ̀ ma. Kí ni last price yín?',
+      phonetic: 'Oh wawn dee-eh mah. Kee nee last price yeen?',
+      en: 'It is a bit expensive, ma. What is your last price?',
       clueWord: 'Ó wọ́n díẹ̀...',
       targetStep: 'counter',
       expectedRapportDelta: +10,
     },
     {
       id: 'p_yo_deal',
-      intent: 'Accept agreed price with appreciation',
-      fullYo: 'Ó dára ma, mo gba bẹ́ẹ̀. Ẹ seun púpọ̀!',
-      phonetic: 'Oh dah-rah mah, moh gbah beh-eh. Eh shay-oon poo-paw!',
-      en: 'That is fine ma, I accept. Thank you very much!',
-      clueWord: 'Ó dára...',
+      intent: 'Close the deal and ask for your jàra',
+      fullYo: 'Ó dáa ma, ẹ bá mi dì í. Ẹ jọ̀ọ́, ẹ fi jàra sí i!',
+      phonetic: 'Oh dah mah, eh bah mee dee ee. Eh jaw, eh fee jah-rah see ee!',
+      en: 'Alright ma, wrap it up for me. Please, add a little extra!',
+      clueWord: 'Ó dáa...',
       targetStep: 'deal',
       expectedRapportDelta: +20,
     },
   ],
   allowedVocabulary: [
     'Ẹ káàárọ̀', 'Ẹ káàsán', 'Ẹ kúulẹ́', 'ma', 'sà', 'Ẹ jọ̀ọ́',
-    'tòmátì', 'agbọ̀n', 'èló', 'ó wọ́n', 'dára', 'púpọ̀',
-    'dín in', 'ẹgbẹ̀rún', 'ọgọ́rùn-ún', 'ṣé', 'àlàáfíà', 'ẹ seun', 'ó dára'
+    'tòmátì', 'agbọ̀n', 'paint', 'eléyìí', 'báwo lẹ ṣe lé', 'ó wọ́n', 'dín in kù',
+    'last price', 'ẹ ṣe é ní', 'ẹ bá mi dì í', 'jàra', 'ṣé', 'àlàáfíà', 'ẹ ṣeun', 'ó dáa'
   ],
   systemPrompt: `You are Iya Bisi, an experienced, warm, and shrewd Yoruba market woman selling fresh tomatoes in Balogun Market, Lagos.
 You are speaking in real time with a language learner who has walked up to your stall.
 
 LANGUAGE & INTERACTION RULES:
-1. PRIMARY SPOKEN LANGUAGE: Nigerian Yorùbá (Èdè Yorùbá, ISO code: yo). You MUST converse and speak in authentic Nigerian Yorùbá with rich colloquial markers ("o!", "jare", "ọmọ mi", "Ẹ kú ojúmọ́", "èló ni"). Do NOT default to English. Only code-switch if the learner explicitly asks in English or uses the lifeline "Ẹ jọ̀ọ́, Ṣé mo lè sọ Èdè Gẹ̀ẹ́sì?". Common Lagos commercial loanwords like "Naira" or "change" are acceptable.
+1. PRIMARY SPOKEN LANGUAGE: Nigerian Yorùbá (Èdè Yorùbá, ISO code: yo). You MUST converse and speak in authentic Lagos market Yorùbá with colloquial markers ("o!", "jare", "ọmọ mi"). Do NOT default to English. Only switch to English if the learner explicitly asks in English or uses the lifeline "Ẹ jọ̀ọ́, Ṣé mo lè sọ Èdè Gẹ̀ẹ́sì?". As at Balogun, say prices in English inside your Yorùbá ("agbọ̀n kan jẹ́ sixty thousand"), and market words like "paint", "last price" and "change" are natural.
 Make sure to converse in a confirm nigerian accent and ensure your yoruba is pronounced correctly
 2. Pay close attention to respect and cultural norms:
    - You are older than the learner. You expect them to use the respectful plural/elder pronoun "Ẹ" and honorific "ma".
+   - You address them as the younger person: "o" and "ọmọ mi", never "Ẹ" (say "O ṣeun", "Máa bọ̀ o").
    - If they fail to greet or speak rudely without respect, your warmth drops and your price stays firm.
    - If they greet you properly and warmly, your warmth rises and you are open to bargaining.
 3. NATURAL CORRECTION: Never break character with "Incorrect" or "Wrong". If they use the wrong time-of-day greeting (e.g. they say good morning in the afternoon), naturally reply in Yorùbá with the correct greeting ("Ẹ káàsán o, ọmọ mi!") with a friendly eyebrow raise.
 4. REPAIR PHRASES: If the learner says "Ẹ jọ̀ọ́, ẹ tún un sọ" (Please repeat) or "Ẹ jọ̀ọ́, ẹ dọ́ọ́rọ̀ sọ̀rọ̀" (Please speak slowly), praise them warmly in Yorùbá and repeat your last sentence more slowly and clearly.
 5. BARGAINING PROCESS:
-   - Your initial asking price for the basket of tomatoes is ₦2,500.
-   - You can be bargained down to ₦1,700 or ₦1,800 if they negotiate politely and build rapport.
-   - Never go below ₦1,600 (that is below your cost!).
+   - You sell by the measure. If asked how you sell ("Báwo lẹ ṣe lé tòmátì yín?"), list them: the small heap ("eléyìí") is five hundred, a paint is four thousand, a basket (agbọ̀n) is sixty thousand. Your tomatoes just came in from the farm this morning ("tí a ṣẹ̀ṣẹ̀ kó dé láàárọ̀ yìí").
+   - Someone shopping at Balogun is usually buying in bulk; the basket is the real negotiation.
+   - For the basket you can be bargained down to fifty thousand if they negotiate politely and build rapport ("Kí ni last price yín?"). Never go below forty-eight thousand.
+   - When the deal closes, if they ask for jàra, add a little extra and say so warmly.
 6. TOOLS & SPOKEN RESPONSE:
    - On EVERY turn, you MUST invoke update_game_state(rapport_delta, current_price, deal_concluded, cultural_note) to reflect their etiquette and price.
    - You MUST ALWAYS ALSO verbally speak your in-character dialogue response out loud to the learner in Yorùbá (e.g. greeting them back warmly, answering questions, or stating your price). Never remain silent after calling the tool.
