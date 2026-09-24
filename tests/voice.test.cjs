@@ -27,9 +27,9 @@ function fixture() {
     '@google/genai': sdk,
     '@/data/scenario-specs': { BALOGUN_IYA_BISI_SPEC: { systemPrompt: 'test', languageName: 'Yoruba' } },
     './audio-worklet': { AudioRecorder: function() { return recorder; }, AudioPlayer: function() { return player; } },
-    './live-credentials': { liveApiKey: async key => key, saveCredential: key => key.trim(), storedCredential: () => 'server' },
+    './live-credentials': { liveToken: async () => 'auth_tokens/test' },
   });
-  const client = new GeminiLiveClient(); client.setApiKey('test');
+  const client = new GeminiLiveClient();
   client.setCallbacks({ onConnectionChange: (...args) => events.push(args) });
   const session = () => ({ closed: false, sent: [], close() { this.closed = true; },
     sendRealtimeInput(message) { this.sent.push(message); }, sendClientContent(message) { this.sent.push(message); } });

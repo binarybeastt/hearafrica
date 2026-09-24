@@ -12,7 +12,6 @@ import {
 } from '@/data/scenario-specs';
 import { GuidedEncounter } from '@/components/phases/GuidedEncounter';
 import { getEncounter } from '@/data/encounters';
-import { displayedKey, storedCredential } from '@/lib/live-credentials';
 
 /**
  * 'guided' is the coached, authored encounter: nudge -> model -> say -> check ->
@@ -73,9 +72,6 @@ export const ConversationDrawer: React.FC<ConversationDrawerProps> = ({
   const [dealConcluded, setDealConcluded] = useState<boolean>(false);
 
   // Gemini Live Connection State
-  const [apiKey, setApiKey] = useState<string>('');
-  const [keyInput, setKeyInput] = useState('');
-  const [showSettings, setShowSettings] = useState(false);
   const [isFinishing, setIsFinishing] = useState(false);
   const finishingRef = useRef(false);
   const currentUserMsgIdRef = useRef<string | null>(null);
@@ -111,10 +107,6 @@ export const ConversationDrawer: React.FC<ConversationDrawerProps> = ({
 
   // Initialize client on mount
   useEffect(() => {
-    const saved = storedCredential();
-    setApiKey(saved);
-    setKeyInput(displayedKey(saved));
-
     const client = new GeminiLiveClient();
     clientRef.current = client;
 
@@ -220,7 +212,7 @@ export const ConversationDrawer: React.FC<ConversationDrawerProps> = ({
     }
   }, [convo]);
 
-  // A committed key or scenario change creates exactly one current session.
+  // A scenario or phase change creates exactly one current session.
   useEffect(() => {
     const client = clientRef.current;
     if (!client) return;
@@ -230,15 +222,14 @@ export const ConversationDrawer: React.FC<ConversationDrawerProps> = ({
     userTranscriptRef.current = '';
     // HEAR and BUILD play cached audio and need no socket; connecting only on
     // DO keeps quota down and keeps the drills working on a flaky network.
-    if (convo && apiKey && phase === 'do') {
-      client.setApiKey(apiKey);
+    if (convo && phase === 'do') {
       void client.connect(currentSpec);
       setConnectionStatus('connecting');
     } else {
       client.disconnect();
     }
     return () => client.disconnect();
-  }, [convo, apiKey, currentSpec, phase]);
+  }, [convo, currentSpec, phase]);
 
   // Switch between languages directly in the drawer
   const handleSwitchLanguage = (langKey: SwitchableLanguage) => {
@@ -282,7 +273,7 @@ export const ConversationDrawer: React.FC<ConversationDrawerProps> = ({
 
   const handleStartSpeaking = useCallback(async () => {
     if (!isConnectedRef.current) {
-      onToast('Please connect your Gemini API key first.');
+      onToast('Still connecting — try again in a moment, or press Reconnect.');
       return;
     }
     if (isRecordingRef.current || finishingRef.current) return;
@@ -370,7 +361,7 @@ export const ConversationDrawer: React.FC<ConversationDrawerProps> = ({
   // Send a suggested scaffolding prompt directly to Gemini Live
   const handleSendPrompt = (prompt: ScaffoldingPrompt) => {
     if (!isConnected) {
-      onToast(`Please connect your Gemini API key to talk with ${currentSpec.traderName}.`);
+      onToast(`Not connected to ${currentSpec.traderName} yet — press Reconnect if it does not connect.`);
       return;
     }
 
@@ -400,7 +391,7 @@ export const ConversationDrawer: React.FC<ConversationDrawerProps> = ({
     const text = customTextInput.trim();
     if (!text) return;
     if (!isConnected) {
-      onToast('Please connect your Gemini API key.');
+      onToast('Not connected yet — press Reconnect if it does not connect.');
       return;
     }
 
@@ -422,7 +413,7 @@ export const ConversationDrawer: React.FC<ConversationDrawerProps> = ({
   // Send repair phrase to Gemini Live
   const handleSendRepair = (nativeText: string, en: string) => {
     if (!isConnected) {
-      onToast('Please connect your Gemini API key.');
+      onToast('Not connected yet — press Reconnect if it does not connect.');
       return;
     }
 
@@ -441,19 +432,10 @@ export const ConversationDrawer: React.FC<ConversationDrawerProps> = ({
     clientRef.current?.sendTextMessage(nativeText);
   };
 
-  // Save API Key and Connect
-  const handleSaveApiKey = () => {
-    if (clientRef.current) {
-      clientRef.current.setApiKey(keyInput);
-      const credential = clientRef.current.getApiKey();
-      if (credential === apiKey) {
-        void clientRef.current.connect(currentSpec);
-        setConnectionStatus('connecting');
-      } else {
-        setApiKey(credential);
-      }
-      setShowSettings(false);
-    }
+  const handleReconnect = () => {
+    if (!clientRef.current) return;
+    void clientRef.current.connect(currentSpec);
+    setConnectionStatus('connecting');
   };
 
   if (!convo) return null;
@@ -602,89 +584,12 @@ export const ConversationDrawer: React.FC<ConversationDrawerProps> = ({
       <div className="cv-log" id="cvLog" ref={logRef}>
         <div role="status" style={{ fontSize: 12, marginBottom: 8, overflowWrap: 'anywhere' }}>
           {connectionStatus.startsWith('Error:') ? connectionStatus : ''}
-          <button type="button" className="btn" onClick={() => setShowSettings(v => !v)}>
-            {isConnected ? 'Connection settings' : 'API key / reconnect'}
-          </button>
+          {phase === 'do' && !isConnected && connectionStatus !== 'connecting' && (
+            <button type="button" className="btn" onClick={handleReconnect}>
+              Reconnect
+            </button>
+          )}
         </div>
-        {/* If no API key is set, show vintage key entry card directly inside drawer */}
-        {(!apiKey || (!isConnected && connectionStatus !== 'connecting') || showSettings) && (
-          <div
-            style={{
-              background: 'var(--paper)',
-              border: '2px solid var(--ink)',
-              borderRadius: '12px',
-              padding: '12px',
-              boxShadow: '3px 3px 0 var(--ink)',
-              margin: '8px 0 16px 0',
-            }}
-          >
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                marginBottom: '6px',
-              }}
-            >
-              <span style={{ fontSize: '18px' }}>🔑</span>
-              <span
-                style={{
-                  fontFamily: 'var(--font-display)',
-                  fontWeight: 900,
-                  fontSize: '14px',
-                }}
-              >
-                Connect to Gemini Live
-              </span>
-            </div>
-            <p
-              style={{
-                fontSize: '12px',
-                color: 'var(--ink2)',
-                lineHeight: 1.4,
-                marginBottom: '8px',
-              }}
-            >
-              Practice with Gemini Live. Igbo voice is experimental; pronunciation should be reviewed by fluent speakers. The app connects
-              on its own; to use your own quota instead, enter a key from{' '}
-              <a
-                href="https://aistudio.google.com/apikey"
-                target="_blank"
-                rel="noreferrer"
-                style={{ color: 'var(--ink)', textDecoration: 'underline' }}
-              >
-                Google AI Studio
-              </a>
-              .
-            </p>
-            <div style={{ display: 'flex', gap: '6px' }}>
-              <input
-                type="password"
-                placeholder="AIzaSy... (optional)"
-                value={keyInput}
-                onChange={(e) => setKeyInput(e.target.value)}
-                aria-label="Gemini API key"
-                style={{
-                  flex: 1,
-                  padding: '6px 10px',
-                  borderRadius: '8px',
-                  border: '2px solid var(--ink)',
-                  fontSize: '12px',
-                  outline: 'none',
-                  background: 'var(--paper2)',
-                }}
-              />
-              <button
-                type="button"
-                onClick={handleSaveApiKey}
-                className="btn primary"
-                style={{ minHeight: '32px', padding: '0 12px', fontSize: '12px' }}
-              >
-                {connectionStatus === 'connecting' ? 'Reconnect' : 'Connect'}
-              </button>
-            </div>
-          </div>
-        )}
 
         {/* Situational Brief Card */}
         <div
@@ -876,7 +781,6 @@ export const ConversationDrawer: React.FC<ConversationDrawerProps> = ({
               <GuidedEncounter
                 spec={currentSpec}
                 encounter={encounter}
-                apiKey={apiKey}
                 model={clientRef.current?.getModel()}
                 onToast={onToast}
                 onRapportChange={setRapport}
@@ -1111,7 +1015,7 @@ export const ConversationDrawer: React.FC<ConversationDrawerProps> = ({
                 placeholder={
                   isConnected
                     ? `Or type in ${currentSpec.languageName} / English...`
-                    : 'Connect API key to begin...'
+                    : 'Connecting...'
                 }
                 value={customTextInput}
                 onChange={(e) => setCustomTextInput(e.target.value)}

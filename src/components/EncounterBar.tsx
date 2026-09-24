@@ -19,27 +19,23 @@ import { GuidedEncounter, EncounterSnapshot } from '@/components/phases/GuidedEn
 interface EncounterBarProps {
   spec: ScenarioSpec;
   encounter: Encounter;
-  apiKey: string;
   model?: string;
   rapport: number;
   onToast: (message: string) => void;
   onStateChange: (snapshot: EncounterSnapshot) => void;
   onClose: () => void;
   onFreePractice: () => void;
-  onOpenSettings: () => void;
 }
 
 export const EncounterBar: React.FC<EncounterBarProps> = ({
   spec,
   encounter,
-  apiKey,
   model,
   rapport,
   onToast,
   onStateChange,
   onClose,
   onFreePractice,
-  onOpenSettings,
 }) => {
   const [finished, setFinished] = useState(false);
 
@@ -135,22 +131,6 @@ export const EncounterBar: React.FC<EncounterBarProps> = ({
 
         <button
           type="button"
-          onClick={onOpenSettings}
-          title="Connection settings"
-          style={{
-            border: '1.5px solid var(--ink)',
-            background: 'var(--paper)',
-            borderRadius: '7px',
-            fontSize: '11px',
-            padding: '3px 7px',
-            cursor: 'pointer',
-          }}
-        >
-          🔑
-        </button>
-
-        <button
-          type="button"
           onClick={onClose}
           aria-label="Leave the conversation"
           style={{
@@ -181,7 +161,6 @@ export const EncounterBar: React.FC<EncounterBarProps> = ({
         <GuidedEncounter
           spec={spec}
           encounter={encounter}
-          apiKey={apiKey}
           model={model}
           onToast={onToast}
           onStateChange={onStateChange}

@@ -5,7 +5,7 @@
 import { GoogleGenAI, Modality, Type, type Session, type LiveServerMessage } from '@google/genai';
 import { BALOGUN_IYA_BISI_SPEC, ScenarioSpec } from '@/data/scenario-specs';
 import { AudioRecorder, AudioPlayer } from './audio-worklet';
-import { liveApiKey, saveCredential, storedCredential } from './live-credentials';
+import { liveToken } from './live-credentials';
 
 export interface GameStateUpdate {
   rapportDelta: number;
@@ -37,7 +37,6 @@ export class GeminiLiveClient {
   private recorder: AudioRecorder = new AudioRecorder();
   private player: AudioPlayer = new AudioPlayer();
   private spec: ScenarioSpec = BALOGUN_IYA_BISI_SPEC;
-  private apiKey: string = '';
   private isConnected = false;
   private isSpeechActive = false;
   private isTraderTurnActive = false;
@@ -49,20 +48,11 @@ export class GeminiLiveClient {
 
   constructor() {
     if (typeof window !== 'undefined') {
-      this.apiKey = storedCredential();
       const storedModel = localStorage.getItem('hearafrica_gemini_live_model');
       if (storedModel) {
         this.model = storedModel;
       }
     }
-  }
-
-  setApiKey(key: string) {
-    this.apiKey = typeof window !== 'undefined' ? saveCredential(key) : key.trim();
-  }
-
-  getApiKey(): string {
-    return this.apiKey;
   }
 
   setModel(model: string) {
@@ -85,13 +75,6 @@ export class GeminiLiveClient {
     const generation = this.generation;
     this.spec = spec;
 
-    if (!this.apiKey) {
-      if (this.callbacks.onConnectionChange) {
-        this.callbacks.onConnectionChange(false, 'No API key provided. Please enter your Gemini API key.');
-      }
-      return false;
-    }
-
     // Request the microphone only when the learner chooses to speak.
     this.recorder.setCallbacks(
       (chunk) => this.handleOutgoingAudioChunk(chunk),
@@ -101,9 +84,9 @@ export class GeminiLiveClient {
     try {
       // Create GoogleGenAI client as specified in official docs:
       // https://ai.google.dev/gemini-api/docs/live-api/capabilities
-      const apiKey = await liveApiKey(this.apiKey);
+      const token = await liveToken();
       if (generation !== this.generation) return false;
-      const ai = new GoogleGenAI({ apiKey });
+      const ai = new GoogleGenAI({ apiKey: token });
 
       const connecting = ai.live.connect({
         model: this.model,

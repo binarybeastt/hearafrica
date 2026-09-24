@@ -7,7 +7,7 @@
 // `score_attempt` — the same pattern the conversation already uses for rapport.
 
 import { GoogleGenAI, Modality, Type, type Session, type LiveServerMessage } from '@google/genai';
-import { liveApiKey } from './live-credentials';
+import { liveToken } from './live-credentials';
 import { RECOMMENDED_LIVE_MODEL } from './gemini-live';
 import { AudioRecorder } from './audio-worklet';
 
@@ -69,7 +69,6 @@ function buildTargetTurn(target: JudgeTarget): string {
 export class PronunciationJudge {
   private session: Session | null = null;
   private recorder = new AudioRecorder();
-  private apiKey: string;
   private model: string;
   private currentKey = '';
   private generation = 0;
@@ -80,8 +79,7 @@ export class PronunciationJudge {
   /** Audio chunks the socket refused. Non-zero means it did not hear you. */
   private sendFailures = 0;
 
-  constructor(apiKey: string, model?: string) {
-    this.apiKey = apiKey;
+  constructor(model?: string) {
     this.model = model || RECOMMENDED_LIVE_MODEL;
   }
 
@@ -98,9 +96,9 @@ export class PronunciationJudge {
 
     this.close();
     const generation = ++this.generation;
-    const apiKey = await liveApiKey(this.apiKey);
+    const token = await liveToken();
     if (generation !== this.generation) throw new Error('Superseded.');
-    const ai = new GoogleGenAI({ apiKey });
+    const ai = new GoogleGenAI({ apiKey: token });
 
     const session = await ai.live.connect({
       model: this.model,

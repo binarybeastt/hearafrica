@@ -11,7 +11,7 @@
 // time.
 
 import { GoogleGenAI, Modality, type Session, type LiveServerMessage } from '@google/genai';
-import { liveApiKey } from './live-credentials';
+import { liveToken } from './live-credentials';
 import { RECOMMENDED_LIVE_MODEL } from './gemini-live';
 
 // The failure this wording is aimed at is stopping early. Measured against the
@@ -61,13 +61,7 @@ export class SpeechSynthesizer {
   /** Serialises turns: a Live session handles one at a time. */
   private queue: Promise<unknown> = Promise.resolve();
 
-  constructor(private apiKey: string, private model: string = RECOMMENDED_LIVE_MODEL) {}
-
-  setApiKey(key: string) {
-    if (key === this.apiKey) return;
-    this.apiKey = key;
-    this.close();
-  }
+  constructor(private model: string = RECOMMENDED_LIVE_MODEL) {}
 
   /** Opens the socket ahead of the first line so nothing waits on a handshake. */
   async warm(): Promise<void> {
@@ -81,11 +75,10 @@ export class SpeechSynthesizer {
   private async ensureSession(): Promise<Session> {
     if (this.session && this.alive) return this.session;
     if (this.connecting) return this.connecting;
-    if (!this.apiKey) throw new Error('No API key provided.');
 
     const generation = ++this.generation;
-    this.connecting = liveApiKey(this.apiKey)
-      .then((apiKey) => new GoogleGenAI({ apiKey }).live.connect({
+    this.connecting = liveToken()
+      .then((token) => new GoogleGenAI({ apiKey: token }).live.connect({
         model: this.model,
         callbacks: {
           onopen: () => {},
@@ -255,12 +248,11 @@ export class SpeechSynthesizer {
   }
 }
 
-/** One synthesizer per key, shared by every caller in the page. */
+/** One synthesizer shared by every caller in the page. */
 let shared: SpeechSynthesizer | null = null;
 
-export function getSynthesizer(apiKey: string, model?: string): SpeechSynthesizer {
-  if (!shared) shared = new SpeechSynthesizer(apiKey, model);
-  else shared.setApiKey(apiKey);
+export function getSynthesizer(model?: string): SpeechSynthesizer {
+  if (!shared) shared = new SpeechSynthesizer(model);
   return shared;
 }
 

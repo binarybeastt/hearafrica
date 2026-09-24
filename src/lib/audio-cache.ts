@@ -94,7 +94,6 @@ export interface SpeakRequest {
   key: string;
   text: string;
   languageName: string;
-  apiKey: string;
   model?: string;
   slow?: boolean;
 }
@@ -116,7 +115,7 @@ export async function getLineAudio(request: SpeakRequest): Promise<Uint8Array> {
       return stored;
     }
     // One long-lived socket for every line, rather than a connect per phrase.
-    const synth = getSynthesizer(request.apiKey, request.model);
+    const synth = getSynthesizer(request.model);
     const attempt = () =>
       synth.speak({
         text: request.text,

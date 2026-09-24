@@ -29,7 +29,6 @@ import {
 interface GuidedEncounterProps {
   spec: ScenarioSpec;
   encounter: Encounter;
-  apiKey: string;
   model?: string;
   onToast: (message: string) => void;
   onRapportChange?: (rapport: number) => void;
@@ -62,7 +61,6 @@ export interface EncounterSnapshot {
 export const GuidedEncounter: React.FC<GuidedEncounterProps> = ({
   spec,
   encounter,
-  apiKey,
   model,
   onToast,
   onRapportChange,
@@ -148,10 +146,6 @@ export const GuidedEncounter: React.FC<GuidedEncounterProps> = ({
    */
   const speak = useCallback(
     async (key: string, line: Line, slow = false, force = false) => {
-      if (!apiKey) {
-        onToast('Add your Gemini API key in settings to hear the phrases.');
-        return false;
-      }
       setAudioBusy(true);
       const player = playerRef.current;
       try {
@@ -159,7 +153,6 @@ export const GuidedEncounter: React.FC<GuidedEncounterProps> = ({
           key,
           text: line.native,
           languageName: spec.languageName,
-          apiKey,
           model,
           slow,
         });
@@ -171,7 +164,7 @@ export const GuidedEncounter: React.FC<GuidedEncounterProps> = ({
         setAudioBusy(false);
       }
     },
-    [apiKey, spec.languageName, model, onToast]
+    [spec.languageName, model, onToast]
   );
 
   // The current line to hear: the trader's, the reaction, or the one to copy.
@@ -260,34 +253,31 @@ export const GuidedEncounter: React.FC<GuidedEncounterProps> = ({
   // as soon as it opens. The learner is reading the first nudge while this
   // runs, so by the time they reach step two nothing has to be synthesized.
   useEffect(() => {
-    if (!apiKey) return;
-    const synth = getSynthesizer(apiKey, model);
+    const synth = getSynthesizer(model);
     void synth.warm();
 
     const requests: SpeakRequest[] = [];
     for (const s of encounter.steps) {
       if (s.kind === 'trader') {
-        requests.push({ key: `${s.id}:trader`, text: s.line.native, languageName: spec.languageName, apiKey, model });
+        requests.push({ key: `${s.id}:trader`, text: s.line.native, languageName: spec.languageName, model });
       } else if (s.kind === 'say') {
-        requests.push({ key: `${s.id}:target`, text: s.line.native, languageName: spec.languageName, apiKey, model });
+        requests.push({ key: `${s.id}:target`, text: s.line.native, languageName: spec.languageName, model });
         for (const [performance, line] of Object.entries(s.reactions)) {
           if (!line) continue;
           requests.push({
             key: `${s.id}:reaction:${performance}`,
             text: line.native,
             languageName: spec.languageName,
-            apiKey,
             model,
           });
         }
       } else {
         for (const option of s.options) {
-          requests.push({ key: `${s.id}:${option.id}`, text: option.line.native, languageName: spec.languageName, apiKey, model });
+          requests.push({ key: `${s.id}:${option.id}`, text: option.line.native, languageName: spec.languageName, model });
           requests.push({
             key: `${s.id}:reaction:x`,
             text: option.reaction.native,
             languageName: spec.languageName,
-            apiKey,
             model,
           });
         }
@@ -306,13 +296,13 @@ export const GuidedEncounter: React.FC<GuidedEncounterProps> = ({
     return () => {
       cancelled = true;
     };
-  }, [encounter.id, apiKey, model, spec.languageName]);
+  }, [encounter.id, model, spec.languageName]);
 
   // Open the judging socket as soon as a line becomes the one to say, so the
   // connection handshake is not happening while the learner is already talking.
   useEffect(() => {
-    if (!apiKey || !target) return;
-    if (!judgeRef.current) judgeRef.current = new PronunciationJudge(apiKey, model);
+    if (!target) return;
+    if (!judgeRef.current) judgeRef.current = new PronunciationJudge(model);
     void judgeRef.current.prepare({
       native: target.native,
       en: target.en,
@@ -321,7 +311,7 @@ export const GuidedEncounter: React.FC<GuidedEncounterProps> = ({
     });
     // Keyed on the line itself: re-preparing on every render would reconnect.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [target?.native, apiKey, model, spec.languageName]);
+  }, [target?.native, model, spec.languageName]);
 
   const stopListening = async () => {
     if (!recordingRef.current) {
@@ -360,17 +350,13 @@ export const GuidedEncounter: React.FC<GuidedEncounterProps> = ({
 
   const startListening = async () => {
     if (startingRef.current || recordingRef.current || checking || !modelReady) return;
-    if (!apiKey) {
-      onToast('Add your Gemini API key in settings to use the microphone.');
-      return;
-    }
     if (!target) return;
     setLastVerdict(null);
     startingRef.current = true;
     pendingReleaseRef.current = false;
 
     if (!judgeRef.current) {
-      judgeRef.current = new PronunciationJudge(apiKey, model);
+      judgeRef.current = new PronunciationJudge(model);
     }
     try {
       await judgeRef.current.listen({

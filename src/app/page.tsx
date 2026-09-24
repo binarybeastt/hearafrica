@@ -24,7 +24,6 @@ import { Landmark } from '@/data/landmarks-data';
 import { NPCS } from '@/data/market-data';
 import { WORLDS, WORLD_BY_LANGUAGE, WorldId, CLOCK_CITIES } from '@/data/worlds';
 import { lagosH, bucket, fmtTime, npcHere } from '@/lib/solar';
-import { SERVER_CREDENTIAL, displayedKey, saveCredential, storedCredential } from '@/lib/live-credentials';
 
 export default function HearAfricaPage() {
   // Simulation clock state
@@ -57,13 +56,6 @@ export default function HearAfricaPage() {
    */
   const [mode, setMode] = useState<'guided' | 'free'>('guided');
   const [snapshot, setSnapshot] = useState<EncounterSnapshot | null>(null);
-  const [showKeyPanel, setShowKeyPanel] = useState(false);
-  const [apiKey, setApiKey] = useState<string>('');
-
-  useEffect(() => {
-    setApiKey(storedCredential());
-  }, []);
-
   /** Which world the learner is in. The map hands off to one of them. */
   const [market, setMarket] = useState<WorldId>('balogun');
   const world = WORLDS[market];
@@ -374,76 +366,12 @@ export default function HearAfricaPage() {
         <EncounterBar
           spec={activeSpec}
           encounter={activeEncounter}
-          apiKey={apiKey}
           rapport={snapshot?.rapport ?? activeSpec.startingRapport}
           onToast={showToast}
           onStateChange={setSnapshot}
           onClose={handleCloseConvo}
           onFreePractice={() => setMode('free')}
-          onOpenSettings={() => setShowKeyPanel(true)}
         />
-      )}
-
-      {showKeyPanel && (
-        <div
-          role="dialog"
-          aria-label="Connection settings"
-          style={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: 95,
-            display: 'grid',
-            placeItems: 'center',
-            background: 'rgba(29,21,16,0.45)',
-          }}
-          onClick={() => setShowKeyPanel(false)}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              width: 'min(380px, 88vw)',
-              background: 'var(--paper)',
-              border: '2.5px solid var(--ink)',
-              borderRadius: '18px',
-              padding: '16px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '9px',
-            }}
-          >
-            <b style={{ fontSize: '14px' }}>Gemini API key</b>
-            <p style={{ fontSize: '11px', color: 'var(--ink2)', margin: 0 }}>
-              Used for the trader&apos;s voice and for checking how you say each line. Leave it
-              blank to use the app&apos;s own connection.
-            </p>
-            <input
-              type="password"
-              value={displayedKey(apiKey)}
-              placeholder="AIzaSy... (optional)"
-              onChange={(e) => setApiKey(e.target.value.trim() || SERVER_CREDENTIAL)}
-              style={{
-                padding: '9px 11px',
-                borderRadius: '10px',
-                border: '2px solid var(--ink)',
-                background: 'var(--paper2)',
-                fontSize: '12px',
-              }}
-            />
-            <button
-              type="button"
-              className="btn primary"
-              style={{ minHeight: '38px' }}
-              onClick={() => {
-                const saved = saveCredential(apiKey);
-                setApiKey(saved);
-                setShowKeyPanel(false);
-                showToast(saved === SERVER_CREDENTIAL ? "Using the app's connection." : 'Key saved.');
-              }}
-            >
-              Save
-            </button>
-          </div>
-        </div>
       )}
 
       {/* Full drawer: free practice, and every scenario outside the market. */}

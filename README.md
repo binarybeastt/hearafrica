@@ -17,7 +17,7 @@ Put a Gemini API key in `.env.local` as `GEMINI_API_KEY` (see `.env.example`), o
 
 The real key never reaches the browser. `src/app/api/live-token/route.ts` trades it for [ephemeral tokens](https://ai.google.dev/gemini-api/docs/live-api/ephemeral-tokens): single-use, good for starting one Live session within a minute, and expiring after 30 minutes. Every socket — the voice, each judge, free practice, and every reconnect — fetches its own (`src/lib/live-credentials.ts`). **Never name the variable `NEXT_PUBLIC_…`**: that prefix copies it into the JavaScript every visitor downloads.
 
-A learner can still paste their own key in connection settings to use their own quota; it is kept in their browser's localStorage and used directly. Leaving the field blank goes back to the server.
+There is no way to enter a key in the app: every learner runs on the server's key, through these tokens.
 
 The route refuses cross-site requests and allows 30 tokens per IP per 10 minutes. That is a speed bump, not a quota: the count is per server instance, and anything that is not a browser can omit the headers the cross-site check reads. Before a wide public launch it needs real sign-in and a shared rate limit.
 
