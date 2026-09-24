@@ -8,8 +8,9 @@
 // Memory cache -> IndexedDB -> synthesize. IndexedDB failures are non-fatal
 // everywhere: a private window with blocked storage degrades to memory only.
 
-import { getSynthesizer } from './speech-synthesizer';
+import { getSynthesizer, type SpokenTake } from './speech-synthesizer';
 import { AudioPlayer } from './audio-worklet';
+import { usesTts } from './speech-engines';
 
 const DB_NAME = 'hearafrica_audio';
 const DB_VERSION = 1;
@@ -98,9 +99,33 @@ export interface SpeakRequest {
   slow?: boolean;
 }
 
+/**
+ * TTS takes are cached apart from Live ones, so moving a language to TTS
+ * replaces its lines rather than replaying the Live takes already stored.
+ */
+function cacheKeyOf(request: SpeakRequest): string {
+  const key = request.slow ? `${request.key}:slow` : request.key;
+  return usesTts(request.languageName) ? `tts:${key}` : key;
+}
+
+/** One take of a scripted line from /api/speech, which only speaks lesson lines. */
+async function ttsTake(request: SpeakRequest): Promise<SpokenTake> {
+  const response = await fetch('/api/speech', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text: request.text, languageName: request.languageName, slow: !!request.slow }),
+  });
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    throw new Error(body.error || `Could not get that line (HTTP ${response.status}).`);
+  }
+  // A unary TTS response is the whole take or an error, never a partial turn.
+  return { bytes: new Uint8Array(await response.arrayBuffer()), complete: true };
+}
+
 /** Returns cached audio if present, otherwise synthesizes and caches it. */
 export async function getLineAudio(request: SpeakRequest): Promise<Uint8Array> {
-  const cacheKey = request.slow ? `${request.key}:slow` : request.key;
+  const cacheKey = cacheKeyOf(request);
 
   const cached = memory.get(cacheKey);
   if (cached) return cached;
@@ -114,14 +139,15 @@ export async function getLineAudio(request: SpeakRequest): Promise<Uint8Array> {
       memory.set(cacheKey, stored);
       return stored;
     }
-    // One long-lived socket for every line, rather than a connect per phrase.
-    const synth = getSynthesizer(request.model);
-    const attempt = () =>
-      synth.speak({
-        text: request.text,
-        languageName: request.languageName,
-        slow: request.slow,
-      });
+    const attempt = usesTts(request.languageName)
+      ? () => ttsTake(request)
+      : // One long-lived socket for every line, rather than a connect per phrase.
+        () =>
+          getSynthesizer(request.model).speak({
+            text: request.text,
+            languageName: request.languageName,
+            slow: request.slow,
+          });
 
     let take = await attempt();
     const good = (t: { bytes: Uint8Array; complete: boolean }) =>
@@ -149,11 +175,6 @@ export async function getLineAudio(request: SpeakRequest): Promise<Uint8Array> {
   }
 }
 
-/** True when this line can play with no network call. */
-export function isLineCached(key: string, slow = false): boolean {
-  return memory.has(slow ? `${key}:slow` : key);
-}
-
 /**
  * A player dedicated to drill audio, kept separate from the live conversation's
  * player so that stopping one never cuts the other off.
@@ -169,7 +190,7 @@ export class DrillPlayer {
    * second one stop the audio the first had just started, leaving silence.
    */
   async play(request: SpeakRequest): Promise<void> {
-    const cacheKey = request.slow ? `${request.key}:slow` : request.key;
+    const cacheKey = cacheKeyOf(request);
     if (this.currentKey === cacheKey) return;
     this.currentKey = cacheKey;
 

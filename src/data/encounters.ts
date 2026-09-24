@@ -837,3 +837,18 @@ export const ENCOUNTERS: Record<string, Encounter> = {
 export function getEncounter(scenarioId: string): Encounter | null {
   return ENCOUNTERS[scenarioId] ?? null;
 }
+
+/** Every line the lesson can speak aloud: trader lines, targets, reactions and choices. */
+export function spokenLines(encounter: Encounter): string[] {
+  const lines: string[] = [];
+  for (const s of encounter.steps) {
+    if (s.kind === 'trader') lines.push(s.line.native);
+    else if (s.kind === 'say') {
+      lines.push(s.line.native);
+      for (const reaction of Object.values(s.reactions)) if (reaction) lines.push(reaction.native);
+    } else {
+      for (const option of s.options) lines.push(option.line.native, option.reaction.native);
+    }
+  }
+  return lines;
+}

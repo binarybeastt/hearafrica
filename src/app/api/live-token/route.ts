@@ -2,6 +2,7 @@
 // https://ai.google.dev/gemini-api/docs/live-api/ephemeral-tokens
 
 import { GoogleGenAI } from '@google/genai';
+import { isCrossSite, rateLimiter } from '@/lib/request-guard';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,49 +11,20 @@ export const dynamic = 'force-dynamic';
  * practice socket, and reopens each after the 15-minute cap, so a learner
  * needs a handful of tokens an hour. This leaves room for that and little else.
  */
-const WINDOW_MS = 10 * 60 * 1000;
-const MAX_TOKENS_PER_WINDOW = 30;
-
-// Per server instance, so it is a speed bump rather than a quota: several
-// instances each keep their own count, and a restart forgets it.
-const issued = new Map<string, number[]>();
-
-function clientIp(request: Request): string {
-  return request.headers.get('x-forwarded-for')?.split(',')[0].trim() || request.headers.get('x-real-ip') || 'unknown';
-}
-
-function rateLimited(ip: string): boolean {
-  const now = Date.now();
-  const recent = (issued.get(ip) || []).filter((t) => now - t < WINDOW_MS);
-  if (recent.length >= MAX_TOKENS_PER_WINDOW) {
-    issued.set(ip, recent);
-    return true;
-  }
-  recent.push(now);
-  issued.set(ip, recent);
-  return false;
-}
-
-/** Browsers mark cross-site requests; refusing them stops other sites spending the quota. */
-function crossSite(request: Request): boolean {
-  const site = request.headers.get('sec-fetch-site');
-  if (site && site !== 'same-origin' && site !== 'none') return true;
-  const origin = request.headers.get('origin');
-  return !!origin && new URL(origin).host !== request.headers.get('host');
-}
+const tooMany = rateLimiter(30, 10 * 60 * 1000);
 
 export async function POST(request: Request) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     return Response.json(
-      { error: 'This server has no Gemini key. Paste your own key in connection settings.' },
+      { error: 'Voice is unavailable: the server has no GEMINI_API_KEY.' },
       { status: 503 }
     );
   }
-  if (crossSite(request)) {
+  if (isCrossSite(request)) {
     return Response.json({ error: 'Cross-site token requests are refused.' }, { status: 403 });
   }
-  if (rateLimited(clientIp(request))) {
+  if (tooMany(request)) {
     return Response.json({ error: 'Too many voice connections. Wait a few minutes and try again.' }, { status: 429 });
   }
 

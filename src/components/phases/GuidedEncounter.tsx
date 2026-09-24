@@ -15,6 +15,7 @@ import { ScenarioSpec, money } from '@/data/scenario-specs';
 import { getLearningContent } from '@/data/learning-content';
 import { DrillPlayer, SpeakRequest, getLineAudio } from '@/lib/audio-cache';
 import { getSynthesizer } from '@/lib/speech-synthesizer';
+import { usesTts } from '@/lib/speech-engines';
 import { PronunciationJudge, Verdict } from '@/lib/pronunciation-judge';
 import {
   EncounterState,
@@ -253,8 +254,8 @@ export const GuidedEncounter: React.FC<GuidedEncounterProps> = ({
   // as soon as it opens. The learner is reading the first nudge while this
   // runs, so by the time they reach step two nothing has to be synthesized.
   useEffect(() => {
-    const synth = getSynthesizer(model);
-    void synth.warm();
+    // Languages spoken by TTS need no socket; opening one would waste a token.
+    if (!usesTts(spec.languageName)) void getSynthesizer(model).warm();
 
     const requests: SpeakRequest[] = [];
     for (const s of encounter.steps) {
