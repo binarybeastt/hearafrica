@@ -7,6 +7,7 @@
 // `score_attempt` — the same pattern the conversation already uses for rapport.
 
 import { GoogleGenAI, Modality, Type, type Session, type LiveServerMessage } from '@google/genai';
+import { liveApiKey } from './live-credentials';
 import { RECOMMENDED_LIVE_MODEL } from './gemini-live';
 import { AudioRecorder } from './audio-worklet';
 
@@ -97,7 +98,9 @@ export class PronunciationJudge {
 
     this.close();
     const generation = ++this.generation;
-    const ai = new GoogleGenAI({ apiKey: this.apiKey });
+    const apiKey = await liveApiKey(this.apiKey);
+    if (generation !== this.generation) throw new Error('Superseded.');
+    const ai = new GoogleGenAI({ apiKey });
 
     const session = await ai.live.connect({
       model: this.model,

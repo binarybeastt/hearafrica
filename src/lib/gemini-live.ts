@@ -5,6 +5,7 @@
 import { GoogleGenAI, Modality, Type, type Session, type LiveServerMessage } from '@google/genai';
 import { BALOGUN_IYA_BISI_SPEC, ScenarioSpec } from '@/data/scenario-specs';
 import { AudioRecorder, AudioPlayer } from './audio-worklet';
+import { liveApiKey, saveCredential, storedCredential } from './live-credentials';
 
 export interface GameStateUpdate {
   rapportDelta: number;
@@ -48,11 +49,7 @@ export class GeminiLiveClient {
 
   constructor() {
     if (typeof window !== 'undefined') {
-      // Falls back to the pre-rename key so an existing local key survives.
-      const stored =
-        localStorage.getItem('hearafrica_gemini_api_key') ||
-        localStorage.getItem('openafrica_gemini_api_key');
-      this.apiKey = stored || process.env.NEXT_PUBLIC_GEMINI_API_KEY || '';
+      this.apiKey = storedCredential();
       const storedModel = localStorage.getItem('hearafrica_gemini_live_model');
       if (storedModel) {
         this.model = storedModel;
@@ -61,14 +58,7 @@ export class GeminiLiveClient {
   }
 
   setApiKey(key: string) {
-    this.apiKey = key.trim();
-    if (typeof window !== 'undefined') {
-      if (this.apiKey) {
-        localStorage.setItem('hearafrica_gemini_api_key', this.apiKey);
-      } else {
-        localStorage.removeItem('hearafrica_gemini_api_key');
-      }
-    }
+    this.apiKey = typeof window !== 'undefined' ? saveCredential(key) : key.trim();
   }
 
   getApiKey(): string {
@@ -111,7 +101,9 @@ export class GeminiLiveClient {
     try {
       // Create GoogleGenAI client as specified in official docs:
       // https://ai.google.dev/gemini-api/docs/live-api/capabilities
-      const ai = new GoogleGenAI({ apiKey: this.apiKey });
+      const apiKey = await liveApiKey(this.apiKey);
+      if (generation !== this.generation) return false;
+      const ai = new GoogleGenAI({ apiKey });
 
       const connecting = ai.live.connect({
         model: this.model,

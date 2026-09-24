@@ -12,6 +12,7 @@ import {
 } from '@/data/scenario-specs';
 import { GuidedEncounter } from '@/components/phases/GuidedEncounter';
 import { getEncounter } from '@/data/encounters';
+import { displayedKey, storedCredential } from '@/lib/live-credentials';
 
 /**
  * 'guided' is the coached, authored encounter: nudge -> model -> say -> check ->
@@ -110,14 +111,9 @@ export const ConversationDrawer: React.FC<ConversationDrawerProps> = ({
 
   // Initialize client on mount
   useEffect(() => {
-    const saved =
-      (typeof window !== 'undefined' &&
-        (localStorage.getItem('hearafrica_gemini_api_key') ||
-          localStorage.getItem('openafrica_gemini_api_key'))) ||
-      process.env.NEXT_PUBLIC_GEMINI_API_KEY ||
-      '';
+    const saved = storedCredential();
     setApiKey(saved);
-    setKeyInput(saved);
+    setKeyInput(displayedKey(saved));
 
     const client = new GeminiLiveClient();
     clientRef.current = client;
@@ -447,18 +443,14 @@ export const ConversationDrawer: React.FC<ConversationDrawerProps> = ({
 
   // Save API Key and Connect
   const handleSaveApiKey = () => {
-    const key = keyInput.trim();
-    if (!key) {
-      onToast('Please paste a valid Gemini API key.');
-      return;
-    }
     if (clientRef.current) {
-      clientRef.current.setApiKey(key);
-      if (key === apiKey) {
+      clientRef.current.setApiKey(keyInput);
+      const credential = clientRef.current.getApiKey();
+      if (credential === apiKey) {
         void clientRef.current.connect(currentSpec);
         setConnectionStatus('connecting');
       } else {
-        setApiKey(key);
+        setApiKey(credential);
       }
       setShowSettings(false);
     }
@@ -642,7 +634,7 @@ export const ConversationDrawer: React.FC<ConversationDrawerProps> = ({
                   fontSize: '14px',
                 }}
               >
-                Connect Gemini Live API Key
+                Connect to Gemini Live
               </span>
             </div>
             <p
@@ -653,8 +645,8 @@ export const ConversationDrawer: React.FC<ConversationDrawerProps> = ({
                 marginBottom: '8px',
               }}
             >
-              Practice with Gemini Live. Igbo voice is experimental; pronunciation should be reviewed by fluent speakers. Enter your API
-              key from{' '}
+              Practice with Gemini Live. Igbo voice is experimental; pronunciation should be reviewed by fluent speakers. The app connects
+              on its own; to use your own quota instead, enter a key from{' '}
               <a
                 href="https://aistudio.google.com/apikey"
                 target="_blank"
@@ -668,7 +660,7 @@ export const ConversationDrawer: React.FC<ConversationDrawerProps> = ({
             <div style={{ display: 'flex', gap: '6px' }}>
               <input
                 type="password"
-                placeholder="AIzaSy..."
+                placeholder="AIzaSy... (optional)"
                 value={keyInput}
                 onChange={(e) => setKeyInput(e.target.value)}
                 aria-label="Gemini API key"

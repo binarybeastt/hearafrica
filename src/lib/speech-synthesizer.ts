@@ -11,6 +11,7 @@
 // time.
 
 import { GoogleGenAI, Modality, type Session, type LiveServerMessage } from '@google/genai';
+import { liveApiKey } from './live-credentials';
 import { RECOMMENDED_LIVE_MODEL } from './gemini-live';
 
 // The failure this wording is aimed at is stopping early. Measured against the
@@ -83,10 +84,8 @@ export class SpeechSynthesizer {
     if (!this.apiKey) throw new Error('No API key provided.');
 
     const generation = ++this.generation;
-    const ai = new GoogleGenAI({ apiKey: this.apiKey });
-
-    this.connecting = ai.live
-      .connect({
+    this.connecting = liveApiKey(this.apiKey)
+      .then((apiKey) => new GoogleGenAI({ apiKey }).live.connect({
         model: this.model,
         callbacks: {
           onopen: () => {},
@@ -109,7 +108,7 @@ export class SpeechSynthesizer {
           responseModalities: [Modality.AUDIO],
           systemInstruction: { parts: [{ text: READER_INSTRUCTION }] },
         },
-      })
+      }))
       .then((session) => {
         if (generation !== this.generation) {
           session.close();

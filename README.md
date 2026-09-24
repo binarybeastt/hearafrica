@@ -11,9 +11,15 @@ npm install
 npm run dev -- --port 3010
 ```
 
-Open http://localhost:3010, choose Yoruba/Hausa/Igbo, and click **Practice Live**. Supply a Gemini API key in the conversation's connection settings, or use the existing local `.env.local` configuration. Editing the key does not connect until you press Connect. Closing the conversation releases its connection and microphone.
+Put a Gemini API key in `.env.local` as `GEMINI_API_KEY` (see `.env.example`), open http://localhost:3010, choose a language, and click **Practice Live**. Closing the conversation releases its connection and microphone.
 
-The current prototype uses browser-side API keys, including the legacy `NEXT_PUBLIC_GEMINI_API_KEY` configuration. These keys are visible to browser code; **do not deploy a shared long-lived key publicly**. A public version needs server-issued ephemeral Live credentials, authentication and usage limits. `.env.local` is ignored by git.
+### Keys
+
+The real key never reaches the browser. `src/app/api/live-token/route.ts` trades it for [ephemeral tokens](https://ai.google.dev/gemini-api/docs/live-api/ephemeral-tokens): single-use, good for starting one Live session within a minute, and expiring after 30 minutes. Every socket — the voice, each judge, free practice, and every reconnect — fetches its own (`src/lib/live-credentials.ts`). **Never name the variable `NEXT_PUBLIC_…`**: that prefix copies it into the JavaScript every visitor downloads.
+
+A learner can still paste their own key in connection settings to use their own quota; it is kept in their browser's localStorage and used directly. Leaving the field blank goes back to the server.
+
+The route refuses cross-site requests and allows 30 tokens per IP per 10 minutes. That is a speed bump, not a quota: the count is per server instance, and anything that is not a browser can omit the headers the cross-site check reads. Before a wide public launch it needs real sign-in and a shared rate limit.
 
 ## The worlds
 
@@ -118,6 +124,7 @@ Whether any residue is real clipping or only the output transcription losing its
 - `src/data/learning-content.ts`: chunks — the recombinable units behind the tiles and the mandatory-word checks.
 - `src/lib/speech-synthesizer.ts`, `src/lib/audio-cache.ts`: one voice socket, cached per line.
 - `src/lib/pronunciation-judge.ts`: judges a spoken attempt via the `score_attempt` tool call.
+- `src/app/api/live-token/route.ts`, `src/lib/live-credentials.ts`: the server-held key and the single-use tokens every socket opens with.
 
 ## Verification
 

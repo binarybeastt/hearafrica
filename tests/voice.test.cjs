@@ -27,6 +27,7 @@ function fixture() {
     '@google/genai': sdk,
     '@/data/scenario-specs': { BALOGUN_IYA_BISI_SPEC: { systemPrompt: 'test', languageName: 'Yoruba' } },
     './audio-worklet': { AudioRecorder: function() { return recorder; }, AudioPlayer: function() { return player; } },
+    './live-credentials': { liveApiKey: async key => key, saveCredential: key => key.trim(), storedCredential: () => 'server' },
   });
   const client = new GeminiLiveClient(); client.setApiKey('test');
   client.setCallbacks({ onConnectionChange: (...args) => events.push(args) });
@@ -34,16 +35,22 @@ function fixture() {
     sendRealtimeInput(message) { this.sent.push(message); }, sendClientContent(message) { this.sent.push(message); } });
   return { client, recorder, pending, events, session };
 }
-async function connected(f) { const result = f.client.connect(); const session = f.session(); f.pending[0].resolve(session); assert.equal(await result, true); return session; }
+// connect() awaits a credential before opening the socket.
+const settle = () => new Promise(r => setTimeout(r));
+async function connected(f) { const result = f.client.connect(); await settle(); const session = f.session(); f.pending[0].resolve(session); assert.equal(await result, true); return session; }
 
 test('waits for setup and ignores closed superseded connections', async () => {
-  const f = fixture(); const first = f.client.connect();
+  const f = fixture(); const first = f.client.connect(); await settle();
   f.pending[0].config.callbacks.onopen(); assert.equal(f.client.isLive, false);
-  const second = f.client.connect(); const fresh = f.session(); f.pending[1].resolve(fresh);
+  const second = f.client.connect(); await settle(); const fresh = f.session(); f.pending[1].resolve(fresh);
   assert.equal(await second, true);
   const stale = f.session(); f.pending[0].resolve(stale); assert.equal(await first, false); assert.equal(stale.closed, true);
   f.pending[0].config.callbacks.onclose({ code: 1000 }); assert.equal(f.client.isLive, true);
   f.client.disconnect(); assert.equal(fresh.closed, true);
+});
+test('a connection superseded while fetching its credential never opens a socket', async () => {
+  const f = fixture(); const first = f.client.connect(); f.client.disconnect();
+  assert.equal(await first, false); assert.equal(f.pending.length, 0);
 });
 test('manual speech includes the final audio before activityEnd', async () => {
   const f = fixture(); const s = await connected(f);

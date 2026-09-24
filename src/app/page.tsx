@@ -24,6 +24,7 @@ import { Landmark } from '@/data/landmarks-data';
 import { NPCS } from '@/data/market-data';
 import { WORLDS, WORLD_BY_LANGUAGE, WorldId, CLOCK_CITIES } from '@/data/worlds';
 import { lagosH, bucket, fmtTime, npcHere } from '@/lib/solar';
+import { SERVER_CREDENTIAL, displayedKey, saveCredential, storedCredential } from '@/lib/live-credentials';
 
 export default function HearAfricaPage() {
   // Simulation clock state
@@ -60,13 +61,7 @@ export default function HearAfricaPage() {
   const [apiKey, setApiKey] = useState<string>('');
 
   useEffect(() => {
-    setApiKey(
-      (typeof window !== 'undefined' &&
-        (localStorage.getItem('hearafrica_gemini_api_key') ||
-          localStorage.getItem('openafrica_gemini_api_key'))) ||
-        process.env.NEXT_PUBLIC_GEMINI_API_KEY ||
-        ''
-    );
+    setApiKey(storedCredential());
   }, []);
 
   /** Which world the learner is in. The map hands off to one of them. */
@@ -418,13 +413,14 @@ export default function HearAfricaPage() {
           >
             <b style={{ fontSize: '14px' }}>Gemini API key</b>
             <p style={{ fontSize: '11px', color: 'var(--ink2)', margin: 0 }}>
-              Used for the trader&apos;s voice and for checking how you say each line.
+              Used for the trader&apos;s voice and for checking how you say each line. Leave it
+              blank to use the app&apos;s own connection.
             </p>
             <input
               type="password"
-              value={apiKey}
-              placeholder="AIzaSy..."
-              onChange={(e) => setApiKey(e.target.value)}
+              value={displayedKey(apiKey)}
+              placeholder="AIzaSy... (optional)"
+              onChange={(e) => setApiKey(e.target.value.trim() || SERVER_CREDENTIAL)}
               style={{
                 padding: '9px 11px',
                 borderRadius: '10px',
@@ -438,11 +434,10 @@ export default function HearAfricaPage() {
               className="btn primary"
               style={{ minHeight: '38px' }}
               onClick={() => {
-                const key = apiKey.trim();
-                if (key) localStorage.setItem('hearafrica_gemini_api_key', key);
-                else localStorage.removeItem('hearafrica_gemini_api_key');
+                const saved = saveCredential(apiKey);
+                setApiKey(saved);
                 setShowKeyPanel(false);
-                showToast(key ? 'Key saved.' : 'Key cleared.');
+                showToast(saved === SERVER_CREDENTIAL ? "Using the app's connection." : 'Key saved.');
               }}
             >
               Save
