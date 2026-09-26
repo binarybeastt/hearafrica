@@ -13,7 +13,7 @@
 //
 // TRANSLATION STATUS: first-pass, not yet reviewed by native speakers.
 
-import { GREET } from './dialogue';
+import { GREET, GREET_TWI } from './dialogue';
 import { registeredLesson } from './generated-registry';
 
 /** Part of the day, as the world clock buckets it: morning, afternoon, evening. */
@@ -798,6 +798,46 @@ export const AKAN_ENCOUNTER: Encounter = {
   ],
 };
 
+/**
+ * Auntie Akosua greets you for the part of the day, from the same table the
+ * clock card reads. Only her greeting changes: the learner's answer, "Yaa ɛna",
+ * is the reply to an elder woman at any hour.
+ */
+const TWI_GREETING_PHONETIC: Record<DayPart, string> = { m: 'mah-cheh', a: 'mah-hah', e: 'mah-joh' };
+
+function akanEncounter(part: DayPart): Encounter {
+  if (part === 'm') return AKAN_ENCOUNTER;
+  const g = GREET_TWI[part];
+  const swap = (line: Line): Line => ({
+    native: line.native.replace(/Maakye/g, g.cas),
+    phonetic: line.phonetic.replace(/mah-cheh/g, TWI_GREETING_PHONETIC[part]),
+    en: line.en.replace(/Good morning/g, g.en),
+  });
+  const steps = AKAN_ENCOUNTER.steps.map((step): Step => {
+    if (step.kind === 'trader') return { ...step, line: swap(step.line) };
+    if (step.kind === 'say') {
+      const r = step.reactions;
+      return {
+        ...step,
+        reactions: {
+          firstTry: swap(r.firstTry),
+          retry: r.retry && swap(r.retry),
+          missedCritical: r.missedCritical && swap(r.missedCritical),
+          skipped: r.skipped && swap(r.skipped),
+        },
+      };
+    }
+    return step;
+  });
+  return { ...AKAN_ENCOUNTER, steps };
+}
+
+const AKAN_BY_PART: Record<DayPart, Encounter> = {
+  m: akanEncounter('m'),
+  a: akanEncounter('a'),
+  e: akanEncounter('e'),
+};
+
 // ---------------------------------------------------------------------------
 // KISWAHILI — Kevo, a matatu conductor, Kencom stage, Nairobi
 //
@@ -1014,12 +1054,17 @@ export function getEncounter(scenarioId: string, part: DayPart = 'm'): Encounter
   const generated = registeredLesson(scenarioId);
   if (generated) return generated.encounter;
   if (scenarioId === YORUBA_ENCOUNTER.scenarioId) return YORUBA_BY_PART[part];
+  if (scenarioId === AKAN_ENCOUNTER.scenarioId) return AKAN_BY_PART[part];
   return ENCOUNTERS[scenarioId] ?? null;
 }
 
 /** Every encounter the app can play, including each time-of-day variant. */
 export function allEncounters(): Encounter[] {
-  return [...Object.values(YORUBA_BY_PART), ...Object.values(ENCOUNTERS).filter((e) => e !== YORUBA_ENCOUNTER)];
+  return [
+    ...Object.values(YORUBA_BY_PART),
+    ...Object.values(AKAN_BY_PART),
+    ...Object.values(ENCOUNTERS).filter((e) => e !== YORUBA_ENCOUNTER && e !== AKAN_ENCOUNTER),
+  ];
 }
 
 /** Every line the lesson can speak aloud: trader lines, targets, reactions and choices. */

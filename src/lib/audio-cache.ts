@@ -119,6 +119,10 @@ function cacheKeyOf(request: SpeakRequest): string {
   return usesTts(request.languageName) ? `tts:${key}` : key;
 }
 
+/** When TTS last failed, the Live reader is used until this time. */
+let ttsDownUntil = 0;
+const TTS_BACKOFF_MS = 10 * 60 * 1000;
+
 /** One take of a scripted line from /api/speech, which only speaks lesson lines. */
 async function ttsTake(request: SpeakRequest): Promise<SpokenTake> {
   const response = await fetch('/api/speech', {
@@ -150,17 +154,33 @@ export async function getLineAudio(request: SpeakRequest): Promise<Uint8Array> {
       memory.set(cacheKey, stored);
       return stored;
     }
-    const attempt = usesTts(request.languageName)
-      ? () => ttsTake(request)
-      : // One long-lived socket for every line, rather than a connect per phrase.
-        () =>
-          getSynthesizer(request.model).speak({
-            text: request.text,
-            languageName: request.languageName,
-            slow: request.slow,
-          });
+    // One long-lived socket for every line, rather than a connect per phrase.
+    const liveTake = () =>
+      getSynthesizer(request.model).speak({
+        text: request.text,
+        languageName: request.languageName,
+        slow: request.slow,
+      });
 
-    let take = await attempt();
+    const tts = usesTts(request.languageName);
+    const ttsFirst = tts && Date.now() >= ttsDownUntil;
+    /** True when a TTS language is being read by Live instead. */
+    let fellBack = tts && !ttsFirst;
+    let attempt = ttsFirst ? () => ttsTake(request) : liveTake;
+
+    let take: SpokenTake;
+    try {
+      take = await attempt();
+    } catch (err) {
+      if (attempt === liveTake) throw err;
+      // TTS is out (its daily quota is small, or the network failed). The Live
+      // reader keeps the lesson speaking rather than leaving it silent, and TTS
+      // is not asked again for a while, since every line would fail the same way.
+      ttsDownUntil = Date.now() + TTS_BACKOFF_MS;
+      fellBack = true;
+      attempt = liveTake;
+      take = await attempt();
+    }
     const good = (t: { bytes: Uint8Array; complete: boolean }) =>
       t.bytes.byteLength > 0 && t.complete && plausible(t.bytes, request.text);
 
@@ -173,7 +193,9 @@ export async function getLineAudio(request: SpeakRequest): Promise<Uint8Array> {
 
     if (good(take)) {
       memory.set(cacheKey, take.bytes);
-      void writeDb(cacheKey, take.bytes);
+      // A fallback take serves this session only: stored, it would stand in for
+      // the TTS reading from then on.
+      if (!fellBack) void writeDb(cacheKey, take.bytes);
     }
     return take.bytes;
   })();

@@ -197,3 +197,56 @@ test('a TTS take that is too short is retried and not cached', async () => {
   // Two requests, each with one retry: the stub was never served from cache.
   assert.equal(calls.fetch.length, 4);
 });
+
+test('Auntie Akosua greets for the time of day, and the reply stays Yaa ɛna', () => {
+  const encounters = load('src/data/encounters.ts', {
+    './dialogue': load('src/data/dialogue.ts'),
+    './generated-registry': load('src/data/generated-registry.ts'),
+  });
+  const at = (part) => encounters.getEncounter('kejetia_kente', part);
+  assert.match(at('m').steps[0].line.native, /^Maakye, me ba!/);
+  assert.match(at('a').steps[0].line.native, /^Maaha, me ba!/);
+  assert.match(at('e').steps[0].line.native, /^Maadwo, me ba!/);
+  assert.match(at('e').steps[0].line.en, /^Good evening/);
+  // Her cool reply follows the clock too; the learner's answer does not.
+  assert.equal(at('a').steps[1].reactions.missedCritical.native, 'Hmm. Maaha.');
+  assert.equal(at('e').steps[1].line.native, 'Yaa ɛna, Auntie');
+  assert.equal(at('a'), at('a'), 'the same object each time');
+});
+
+test('lines are voiced by whoever speaks them', () => {
+  const { voiceFor } = load('src/lib/speech-engines.ts');
+  const speaker = (subject, traderAgeGroup) => ({ traderPronouns: { subject }, traderAgeGroup });
+  assert.equal(voiceFor(speaker('she', 'elder')), 'Kore'); // Iya Bisi, Auntie Akosua
+  assert.equal(voiceFor(speaker('he', 'elder')), 'Charon'); // Alhaji Musa
+  assert.equal(voiceFor(speaker('he', 'peer')), 'Puck'); // Kevo
+});
+
+test('when TTS is out, the Live voice reads the line and it is not stored', async () => {
+  const calls = { fetch: 0, live: 0 };
+  const cache = load(
+    'src/lib/audio-cache.ts',
+    {
+      './speech-synthesizer': {
+        getSynthesizer: () => ({ speak: async () => { calls.live++; return { bytes: new Uint8Array(48000 * 3), complete: true }; } }),
+      },
+      './speech-engines': load('src/lib/speech-engines.ts'),
+      './audio-worklet': { AudioPlayer: function () { return {}; } },
+    },
+    {
+      // The daily TTS quota is spent: every request is refused.
+      fetch: async () => { calls.fetch++; return { ok: false, status: 502, json: async () => ({ error: 'quota' }) }; },
+    }
+  );
+  const line = (key) => ({ key, text: LINE, languageName: 'Èdè Yorùbá' });
+  const bytes = await cache.getLineAudio(line('yo_s3:target'));
+  assert.equal(bytes.byteLength, 48000 * 3, 'the lesson still speaks');
+  assert.equal(calls.live, 1);
+  // Replays in the same session come from memory.
+  await cache.getLineAudio(line('yo_s3:target'));
+  assert.equal(calls.live, 1);
+  // And TTS is not asked again for the next line while it is down.
+  await cache.getLineAudio({ ...line('yo_s4:target'), text: 'Ẹ jọ̀ọ́ ma, ẹ tún un sọ.' });
+  assert.equal(calls.fetch, 1);
+  assert.equal(calls.live, 2);
+});

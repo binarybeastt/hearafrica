@@ -6,6 +6,7 @@
 
 import { spokenLines } from '@/data/encounters';
 import type { GeneratedLesson } from '@/data/generated';
+import { voiceFor } from './speech-engines';
 
 const MAX_LESSONS = 50;
 
@@ -19,10 +20,12 @@ export function saveGenerated(lesson: GeneratedLesson) {
   while (store.size > MAX_LESSONS) store.delete(store.keys().next().value as string);
 }
 
-/** Whether a generated lesson in this language contains this exact line. */
-export function isGeneratedLine(languageName: string, text: string): boolean {
+/** The voice for this exact line if a generated lesson in this language has it, else null. */
+export function generatedLineVoice(languageName: string, text: string): string | null {
   for (const lesson of store.values()) {
-    if (lesson.spec.languageName === languageName && spokenLines(lesson.encounter).includes(text)) return true;
+    if (lesson.spec.languageName === languageName && spokenLines(lesson.encounter).includes(text)) {
+      return voiceFor(lesson.spec);
+    }
   }
-  return false;
+  return null;
 }

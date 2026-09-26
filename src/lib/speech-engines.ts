@@ -13,3 +13,12 @@ export const TTS_LANGUAGES: ReadonlySet<string> = new Set(['Èdè Yorùbá']);
 export function usesTts(languageName: string): boolean {
   return TTS_LANGUAGES.has(languageName);
 }
+
+/**
+ * The TTS voice for whoever speaks a lesson's lines. It used to be Kore, a
+ * woman's voice, for everyone — Alhaji Musa and Kevo included.
+ */
+export function voiceFor(speaker: { traderPronouns: { subject: string }; traderAgeGroup: 'elder' | 'peer' }): string {
+  if (speaker.traderPronouns.subject !== 'he') return 'Kore';
+  return speaker.traderAgeGroup === 'elder' ? 'Charon' : 'Puck';
+}

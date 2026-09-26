@@ -8,7 +8,7 @@
 // https://ai.google.dev/gemini-api/docs/speech-generation
 
 import { ttsScript } from '@/lib/speech-script';
-import { isGeneratedLine } from '@/lib/generated-store';
+import { generatedLineVoice } from '@/lib/generated-store';
 import { usesTts } from '@/lib/speech-engines';
 import { isCrossSite, rateLimiter } from '@/lib/request-guard';
 import { pcmFromWav } from '@/lib/wav';
@@ -16,7 +16,6 @@ import { pcmFromWav } from '@/lib/wav';
 export const dynamic = 'force-dynamic';
 
 const TTS_MODEL = 'gemini-3.8-flash-tts';
-const VOICE = 'Kore';
 
 const SCRIPT = ttsScript();
 
@@ -47,8 +46,9 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
   const text = typeof body?.text === 'string' ? body.text : '';
   const languageName = typeof body?.languageName === 'string' ? body.languageName : '';
-  const scripted = SCRIPT.get(languageName)?.has(text) || (usesTts(languageName) && isGeneratedLine(languageName, text));
-  if (!scripted) {
+  // The voice comes from the script too: whoever says the line in the lesson.
+  const voice = SCRIPT.get(languageName)?.get(text) ?? (usesTts(languageName) ? generatedLineVoice(languageName, text) : null);
+  if (!voice) {
     return Response.json({ error: 'Only lesson lines can be spoken.' }, { status: 400 });
   }
   if (tooMany(request)) {
@@ -70,7 +70,7 @@ export async function POST(request: Request) {
         model: TTS_MODEL,
         input: [{ type: 'user_input', content: [content] }],
         response_format: { type: 'audio' },
-        generation_config: { speech_config: [{ voice: VOICE }] },
+        generation_config: { speech_config: [{ voice }] },
       }),
     });
     const interaction = await response.json().catch(() => null);
