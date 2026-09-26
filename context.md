@@ -34,6 +34,10 @@ respect words. Or you describe your own situation and get a scene and lesson dra
 - Audio cache keyed by line text, so a reworded line gets new audio.
 - 56 tests pass; typecheck and production build clean; the key is absent from the build output.
 
+**Across languages**
+- The judge understands fused respect words and re-checks a failing attempt twice before telling the learner; missing respect is only reported when every check agrees.
+- TTS voices follow the speaker (Kore for women, Charon for elder men, Puck for young men); lessons fall back to the Live voice when TTS is out.
+
 **Lessons**
 - Iya Bisi (Balogun) rewritten with a Lagos Yorùbá speaker: asking how she sells, prices said in English, bulk basket, jàra, elder register.
 - Iya Bisi extended to 7 steps: greeting follows the world clock, a note on the register she answers in, *Ẹ kú ọjà*, asking her to repeat (she answers slowly), a walk-away bargaining option, peppers asked from memory.
@@ -74,7 +78,7 @@ top, not a requirement.
    - **✓ verified / ⚠ draft** labels per line, and a "we'd say it like this" correction button that feeds the bank.
 2. **Native-speaker review** of every hand-written lesson outside Yorùbá.
 3. **Moving each language's scripted voice to TTS** — one line in `src/lib/speech-engines.ts` per language, after someone fluent has listened to the result.
-4. **TTS rate limit:** 10 requests/minute on the current tier, shared by every learner. A fresh browser's first lesson can show errors until lines are cached. Options: wait-and-retry in `/api/speech`, a server-side audio cache, or a higher tier.
+4. **TTS quota — the real blocker.** `gemini-3.8-flash-tts` allows **100 requests a day** (and 10/minute) on the current tier, shared by every learner; one fresh browser's Iya Bisi lesson uses 25–45. When it runs out, lines fall back to the Live voice (shipped), but that brings back Live's clipping. Fix before moving more languages to TTS: generate each lesson's audio once and serve it as files (spread over a few days at 100/day), or upgrade the tier.
 
 ### Yorùbá
 
@@ -84,16 +88,24 @@ top, not a requirement.
 
 ### Hausa
 
+- **TTS checked:** all 16 lines voiced completely (voice Charon — Musa is an elder man); spoken prices come back from transcription as digits, not as missing words. Ready to switch on (`TTS_LANGUAGES` in `src/lib/speech-engines.ts`) once the quota problem is solved.
+- **Judge checked:** correct lines pass 9/9; a greeting without *Alhaji* is rejected 3/3.
+- *Ina kwana?* is a morning greeting, but the lesson uses it at any hour; a Hausa speaker should supply afternoon/evening forms.
 - No 3D world: a Kano world (Kurmi Market or the Kofar Mata dye pits) would bring it level with the others.
-- Lesson unreviewed. Hausa is on both TTS and transcription lists, so it is the easiest next language to move to TTS.
+- Lesson unreviewed.
 
 ### Akan (Twi)
 
+- **Greeting follows the clock** (*Maakye / Maaha / Maadwo*, from the clock's own table); the learner's *Yaa ɛna* stays, as the reply to an elder woman at any hour — a speaker should confirm.
+- **Judge checked:** correct lines pass 8/9; *Yaa ɛna* without *Auntie* is rejected 3/3. A wrong-register *Yaa nua* test passed, but its audio came from the Live voice, which may have "corrected" it — retest with TTS audio.
+- TTS not yet checked (quota ran out before its lines).
 - Lesson unreviewed; needs a Ghanaian speaker (Twi is a dialect of Akan).
 - Transcription does not support Akan at all — judging must stay on Live.
 
 ### Swahili
 
+- **Judge inconclusive:** *Naenda Westlands, tafadhali* and *Nishushe hapa, tafadhali* failed every check, heard as *Nenda…* and *Nishuuhapa*. The test audio came from the Live voice (TTS quota spent), so the fault may be the audio, not the judge — retest with TTS audio or a real recording before changing anything.
+- TTS voice will be Puck (Kevo is a young man); not yet checked (quota).
 - Lesson unreviewed; needs a *Kenyan* speaker specifically — it leans on Nairobi register (*Sasa*, *Niaje*), not coastal Swahili, and on real matatu fares.
 
 ### Scenes
