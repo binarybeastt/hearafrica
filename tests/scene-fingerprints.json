@@ -10,5 +10,17 @@
   "nairobi": {
     "objects": 1512,
     "hash": "3a31d1b1af358151"
+  },
+  "composed:street": {
+    "objects": 829,
+    "hash": "3622c3f7dbee4310"
+  },
+  "composed:market-lane": {
+    "objects": 1876,
+    "hash": "3f3fd2b1dedbca38"
+  },
+  "composed:bus-stop": {
+    "objects": 1177,
+    "hash": "4bf5b233a14e0d46"
   }
 }

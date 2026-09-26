@@ -10,6 +10,8 @@ import * as THREE from 'three';
 import { buildBaloganScene } from './balogun-scene';
 import { buildKejetiaScene, clearKejetiaCaches } from './kejetia-scene';
 import { buildNairobiScene } from './nairobi-scene';
+import { composeScene } from './compose';
+import type { SceneLayout } from '@/data/scene-layout';
 import { clearKitCaches } from './kit/core';
 import { applySunElevation } from './kit/life';
 import { PALETTE } from './kit/palettes';
@@ -38,6 +40,11 @@ interface MarketScene3DProps {
   price?: number | null;
   /** Which world to build. */
   market?: 'balogun' | 'kejetia' | 'nairobi';
+  /**
+   * A composed world instead of a hand-built one. Pass a stable object: a new
+   * one rebuilds the scene.
+   */
+  layout?: SceneLayout | null;
   /** Who the learner is walking toward, and what they stand at. */
   traderName?: string;
   pitchNoun?: string;
@@ -57,6 +64,7 @@ export const MarketScene3D: React.FC<MarketScene3DProps> = ({
   traderMood = 'idle',
   price = null,
   market = 'balogun',
+  layout = null,
   traderName = 'the trader',
   pitchNoun = 'stall',
 }) => {
@@ -87,8 +95,9 @@ export const MarketScene3D: React.FC<MarketScene3DProps> = ({
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     host.appendChild(renderer.domElement);
 
-    const built: BuiltScene =
-      market === 'kejetia'
+    const built: BuiltScene = layout
+      ? composeScene(layout)
+      : market === 'kejetia'
         ? buildKejetiaScene()
         : market === 'nairobi'
         ? buildNairobiScene()
@@ -434,7 +443,7 @@ export const MarketScene3D: React.FC<MarketScene3DProps> = ({
       renderer.dispose();
       if (renderer.domElement.parentNode === host) host.removeChild(renderer.domElement);
     };
-  }, [market]);
+  }, [market, layout]);
 
   useEffect(() => {
     builtRef.current?.setTraderMood(traderMood);

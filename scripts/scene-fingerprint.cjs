@@ -6,49 +6,12 @@
 //   node scripts/scene-fingerprint.cjs --save     record them as the baseline
 //   node scripts/scene-fingerprint.cjs --check    compare against the baseline
 
-process.noDeprecation = true; // three's CommonJS build warns on require
-
 const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
-const Module = require('node:module');
-const ts = require('typescript');
+const { ROOT } = require('./ts-register.cjs');
 
-const ROOT = path.resolve(__dirname, '..');
 const BASELINE = path.join(ROOT, 'tests', 'scene-fingerprints.json');
-
-// Load the app's TypeScript directly, resolving the '@/' alias to src/.
-const resolve = Module._resolveFilename;
-Module._resolveFilename = function (request, parent, ...rest) {
-  if (request.startsWith('@/')) request = path.join(ROOT, 'src', request.slice(2));
-  return resolve.call(this, request, parent, ...rest);
-};
-Module._extensions['.ts'] = (module, filename) => {
-  const out = ts.transpileModule(fs.readFileSync(filename, 'utf8'), {
-    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true },
-    fileName: filename,
-  }).outputText;
-  module._compile(out, filename);
-};
-Module._extensions['.tsx'] = Module._extensions['.ts'];
-const tsResolve = Module._resolveFilename;
-Module._resolveFilename = function (request, parent, ...rest) {
-  try {
-    return tsResolve.call(this, request, parent, ...rest);
-  } catch (err) {
-    for (const ext of ['.ts', '.tsx']) {
-      try {
-        return tsResolve.call(this, request + ext, parent, ...rest);
-      } catch {}
-    }
-    throw err;
-  }
-};
-
-// Canvas textures need a document; a drawing context that ignores every call
-// is enough, since only the scene graph is fingerprinted.
-const context = new Proxy({}, { get: () => () => ({ width: 0 }), set: () => true });
-global.document = { createElement: () => ({ width: 0, height: 0, getContext: () => context }) };
 
 const THREE = require('three');
 const r = (n) => Math.round(n * 1000) / 1000;
@@ -74,10 +37,19 @@ function fingerprint(scene) {
   };
 }
 
+const { composeScene } = require(path.join(ROOT, 'src/components/scene/compose.ts'));
+const { normalizeLayout } = require(path.join(ROOT, 'src/data/scene-layout.ts'));
+
 const WORLDS = {
   balogun: () => require(path.join(ROOT, 'src/components/scene/balogun-scene.ts')).buildBaloganScene(),
   kejetia: () => require(path.join(ROOT, 'src/components/scene/kejetia-scene.ts')).buildKejetiaScene(),
   nairobi: () => require(path.join(ROOT, 'src/components/scene/nairobi-scene.ts')).buildNairobiScene(),
+  // Composed worlds: the same layout must always build the same scene.
+  'composed:street': () => composeScene(normalizeLayout({ template: 'street', seed: 7, priceTitle: 'PRICE' })),
+  'composed:market-lane': () =>
+    composeScene(normalizeLayout({ template: 'market-lane', seed: 7, character: { stands: 'stall' } })),
+  'composed:bus-stop': () =>
+    composeScene(normalizeLayout({ template: 'bus-stop', seed: 7, dressing: ['towers', 'jacarandas'] })),
 };
 
 const results = {};
