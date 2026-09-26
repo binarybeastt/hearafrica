@@ -110,6 +110,6 @@ top, not a requirement.
 
 ## Shipping
 
-- 12 commits on `server-live-tokens` are not pushed; `main` still has the old version with the key in the browser bundle. Merge before deploying.
+- Most of the work on `server-live-tokens` is not pushed yet (`git status` shows how far ahead it is); `main` still has the old version with the key in the browser bundle. Merge before deploying.
 - Deploy target: Vercel recommended (nothing needs a long-running server). Set `GEMINI_API_KEY` in the host's environment, never with a `NEXT_PUBLIC_` prefix.
 - Checks: `npm test`, `npm run typecheck`, `npm run build` (dev server stopped), `npm run check:scenes`.
