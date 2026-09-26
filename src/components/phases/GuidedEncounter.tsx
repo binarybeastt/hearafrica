@@ -169,10 +169,11 @@ export const GuidedEncounter: React.FC<GuidedEncounterProps> = ({
   );
 
   // The current line to hear: the trader's, the reaction, or the one to copy.
-  const activeLine: { key: string; presentationKey: string; line: Line; practice: boolean } | null = useMemo(() => {
+  const activeLine: { key: string; presentationKey: string; line: Line; practice: boolean; slow?: boolean } | null = useMemo(() => {
     if (state.stage === 'reaction' && state.reaction) {
       const key = `${step?.id}:reaction:${state.lastPerformance ?? 'x'}`;
-      return { key, presentationKey: key, line: state.reaction, practice: false };
+      const slow = step?.kind === 'say' && !!step.slowReply;
+      return { key, presentationKey: key, line: state.reaction, practice: false, slow };
     }
     if (!step) return null;
     if (step.kind === 'trader') {
@@ -219,7 +220,7 @@ export const GuidedEncounter: React.FC<GuidedEncounterProps> = ({
       setModelReadyKey(null);
       return;
     }
-    void speak(activeLine.key, activeLine.line, false, activeLine.practice).then((played) => {
+    void speak(activeLine.key, activeLine.line, !!activeLine.slow, activeLine.practice).then((played) => {
       // A failed/missing model must never silently unlock a "repeat" task.
       // The learner can replay it or explicitly skip instead.
       if (activeLine.practice && played) setModelReadyKey(activeLine.presentationKey);
@@ -231,6 +232,19 @@ export const GuidedEncounter: React.FC<GuidedEncounterProps> = ({
   const modelReady = Boolean(
     activeLine?.practice && modelReadyKey === activeLine.presentationKey
   );
+
+  // A recall line is said from memory: hidden until the learner asks to see it,
+  // and until then there is nothing to listen to first. A correction always
+  // shows it, because by then they have tried.
+  const [revealedKey, setRevealedKey] = useState<string | null>(null);
+  const recallHidden = Boolean(
+    step?.kind === 'say' &&
+      step.recall &&
+      state.stage === 'say' &&
+      activeLine &&
+      revealedKey !== activeLine.presentationKey
+  );
+  const canSpeak = modelReady || recallHidden;
 
   // --- Microphone -----------------------------------------------------------
   // The attempt is judged by the model itself, via the score_attempt tool call.
@@ -270,6 +284,7 @@ export const GuidedEncounter: React.FC<GuidedEncounterProps> = ({
             text: line.native,
             languageName: spec.languageName,
             model,
+            slow: !!s.slowReply,
           });
         }
       } else {
@@ -297,7 +312,8 @@ export const GuidedEncounter: React.FC<GuidedEncounterProps> = ({
     return () => {
       cancelled = true;
     };
-  }, [encounter.id, model, spec.languageName]);
+  // The encounter object, not its id: time-of-day variants share an id.
+  }, [encounter, model, spec.languageName]);
 
   // Open the judging socket as soon as a line becomes the one to say, so the
   // connection handshake is not happening while the learner is already talking.
@@ -350,7 +366,7 @@ export const GuidedEncounter: React.FC<GuidedEncounterProps> = ({
   };
 
   const startListening = async () => {
-    if (startingRef.current || recordingRef.current || checking || !modelReady) return;
+    if (startingRef.current || recordingRef.current || checking || !canSpeak) return;
     if (!target) return;
     setLastVerdict(null);
     startingRef.current = true;
@@ -440,14 +456,14 @@ export const GuidedEncounter: React.FC<GuidedEncounterProps> = ({
     </div>
   );
 
-  const replayRow = (key: string, line: Line, readyKey?: string) => (
+  const replayRow = (key: string, line: Line, readyKey?: string, slow = false) => (
     <div style={{ display: 'flex', gap: '6px' }}>
       <button
         type="button"
         className="btn"
         onClick={() => {
           if (readyKey) setModelReadyKey(null);
-          void speak(key, line, false, true).then((played) => {
+          void speak(key, line, slow, true).then((played) => {
             if (readyKey && played) setModelReadyKey(readyKey);
           });
         }}
@@ -495,7 +511,7 @@ export const GuidedEncounter: React.FC<GuidedEncounterProps> = ({
         void stopListening();
       }}
       onPointerCancel={() => void stopListening()}
-      disabled={checking || audioBusy || !modelReady}
+      disabled={checking || audioBusy || !canSpeak}
       style={{
         minHeight: '46px',
         fontSize: '13px',
@@ -508,7 +524,7 @@ export const GuidedEncounter: React.FC<GuidedEncounterProps> = ({
         ? 'Checking what you said…'
         : recording
         ? '↑ Release Space to submit'
-        : !modelReady
+        : !canSpeak
         ? '🔊 Listen first…'
         : label}
     </button>
@@ -579,13 +595,19 @@ export const GuidedEncounter: React.FC<GuidedEncounterProps> = ({
           )}
 
           <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--ink2)' }}>
-            Say this:
+            {recallHidden ? 'Say it yourself — in Yorùbá:' : 'Say this:'}
           </div>
-          {lineCard(step.line, { big: true })}
+          {recallHidden ? (
+            <div className="note" style={{ fontSize: '13px' }}>
+              <i>{step.line.en}</i>
+            </div>
+          ) : (
+            lineCard(step.line, { big: true })
+          )}
 
           {step.chunks && content && (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-              {step.chunks
+              {(recallHidden ? step.recall?.hintChunks ?? [] : step.chunks)
                 .map((id) => content.chunks[id])
                 .filter(Boolean)
                 .map((chunk) => (
@@ -615,8 +637,19 @@ export const GuidedEncounter: React.FC<GuidedEncounterProps> = ({
             </div>
           )}
 
-          {replayRow(`${step.id}:target`, step.line, activeLine?.presentationKey)}
-          {micButton('② Hold Space to say it back')}
+          {recallHidden ? (
+            <button
+              type="button"
+              className="btn"
+              onClick={() => setRevealedKey(activeLine?.presentationKey ?? null)}
+              style={{ minHeight: '38px', fontSize: '12px' }}
+            >
+              Show me the line
+            </button>
+          ) : (
+            replayRow(`${step.id}:target`, step.line, activeLine?.presentationKey)
+          )}
+          {micButton(recallHidden ? 'Hold Space and say it' : '② Hold Space to say it back')}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: '10px', color: 'var(--ink3)', fontStyle: 'italic' }}>
               {spec.traderName} listens to how you say it.
@@ -757,9 +790,17 @@ export const GuidedEncounter: React.FC<GuidedEncounterProps> = ({
               {lineCard(state.reaction)}
             </>
           )}
+          {step?.kind === 'say' && step.afterNote && (
+            <div style={coachStyle}>
+              <span aria-hidden="true">💬</span>
+              <span>{step.afterNote}</span>
+            </div>
+          )}
           {replayRow(
             `${step?.id}:reaction:${state.lastPerformance ?? 'x'}`,
-            state.reaction
+            state.reaction,
+            undefined,
+            !!activeLine?.slow
           )}
           <button
             type="button"

@@ -13,6 +13,11 @@
 //
 // TRANSLATION STATUS: first-pass, not yet reviewed by native speakers.
 
+import { GREET } from './dialogue';
+
+/** Part of the day, as the world clock buckets it: morning, afternoon, evening. */
+export type DayPart = 'm' | 'a' | 'e';
+
 export interface Line {
   native: string;
   phonetic: string;
@@ -61,6 +66,15 @@ export type Step =
       chunks?: string[];
       reactions: Reactions;
       rapportDelta?: number;
+      /** A coach note shown with her reply: something worth noticing in it. */
+      afterNote?: string;
+      /** She answers slowly, e.g. when the learner has asked her to repeat. */
+      slowReply?: boolean;
+      /**
+       * Said from memory: the line stays hidden until the learner asks for it,
+       * and only these chunks (the new words) are shown as tiles meanwhile.
+       */
+      recall?: { hintChunks: string[] };
     }
   | {
       kind: 'choose';
@@ -87,185 +101,334 @@ export interface Encounter {
 // YORÙBÁ — Iya Bisi, Balogun Market
 // ---------------------------------------------------------------------------
 
-export const YORUBA_ENCOUNTER: Encounter = {
-  id: 'enc_balogun_tomatoes',
-  scenarioId: 'balogun_tomatoes',
-  languageId: 'yoruba',
-  title: 'Buying a basket of tomatoes from Iya Bisi',
-  goal: 'Greet her properly, ask how she sells, bargain for a basket, and close with your jàra.',
-  startingRapport: 40,
-  startingPrice: 60000,
-  outro:
-    'You greeted an elder correctly, asked how she sells, bargained for a basket without giving offence, and got your jàra — in Yorùbá.',
-  // Revised with a Lagos Yorùbá speaker: prices are said in English inside
-  // Yorùbá, as they are at Balogun, and she speaks to the learner as the elder
-  // ("o", not "Ẹ"). The prices themselves are estimates, not quotes.
-  steps: [
-    {
-      kind: 'say',
-      id: 'yo_s2',
-      nudge:
-        'You have walked up to Iya Bisi’s stall. Greet her before anything else — going straight to business would be rude. She is an elder woman, so the respect marker "Ẹ" and the honorific "ma" are not optional.',
-      line: {
-        native: 'Ẹ káàárọ̀ ma',
-        phonetic: 'eh kah-ah-raw mah',
-        en: 'Good morning, ma.',
-      },
-      chunks: ['yo_e', 'yo_kaaro', 'yo_ma'],
-      rapportDelta: 15,
-      reactions: {
-        firstTry: {
-          native: 'Káàárọ̀ ọmọ mi, ṣé dáadáa ni? Kí lo fẹ́ rà?',
-          phonetic: 'kah-ah-raw aw-maw mee, sheh dah-ah-dah-ah nee? kee loh feh rah?',
-          en: 'Good morning my child, are you well? What would you like to buy?',
+/**
+ * The greeting follows the world clock, so it is built for the part of the day
+ * the learner walks up in, from the same table the clock card reads.
+ */
+const YORUBA_GREETING_CHUNK: Record<DayPart, string> = { m: 'yo_kaaro', a: 'yo_kaasan', e: 'yo_kaale' };
+
+function yorubaEncounter(part: DayPart): Encounter {
+  const greet = GREET[part];
+  return {
+    id: 'enc_balogun_tomatoes',
+    scenarioId: 'balogun_tomatoes',
+    languageId: 'yoruba',
+    title: 'Buying a basket of tomatoes from Iya Bisi',
+    goal: 'Greet her properly, ask how she sells, bargain for a basket, and close with your jàra.',
+    startingRapport: 40,
+    startingPrice: 60000,
+    outro:
+      'You greeted an elder and her trade, asked how she sells, got her to repeat herself, bargained for a basket, asked for peppers on your own, and got your jàra — in Yorùbá.',
+    // Revised with a Lagos Yorùbá speaker: prices are said in English inside
+    // Yorùbá, as they are at Balogun, and she speaks to the learner as the elder
+    // ("o", not "Ẹ"). The prices themselves are estimates, not quotes.
+    steps: [
+      {
+        kind: 'say',
+        id: 'yo_s2',
+        nudge: `You have walked up to Iya Bisi’s stall, and it is ${greet.part}. Greet her before anything else — going straight to business would be rude. She is an elder woman, so the respect marker "Ẹ" and the honorific "ma" are not optional.`,
+        line: {
+          native: `${greet.resp} ma`,
+          phonetic: `eh ${GREETING_PHONETIC[part]} mah`,
+          en: `${greet.en}, ma.`,
         },
-        retry: {
-          native: 'Yẹn ni! Káàárọ̀ ọmọ mi.',
-          phonetic: 'yen nee! kah-ah-raw aw-maw mee.',
-          en: "That's it! Good morning, my child.",
-        },
-        missedCritical: {
-          native: 'Mm. Káàárọ̀.',
-          phonetic: 'mm. kah-ah-raw.',
-          en: 'Mm. Morning.',
-        },
-        skipped: {
-          native: 'Káàárọ̀.',
-          phonetic: 'kah-ah-raw.',
-          en: 'Morning.',
-        },
-      },
-    },
-    {
-      kind: 'say',
-      id: 'yo_s3',
-      nudge:
-        'Now ask how she sells her tomatoes. She sells several measures at different prices, so ask how she sells them rather than the price of one thing. Keep "Ẹ jọ̀ọ́" — please — in front.',
-      line: {
-        native: 'Ẹ jọ̀ọ́ ma, báwo lẹ ṣe lé tòmátì yín?',
-        phonetic: 'eh jaw-aw mah, bah-woh leh sheh leh toh-mah-tee yeen?',
-        en: 'Please ma, how are you selling your tomatoes?',
-      },
-      chunks: ['yo_ejoo', 'yo_ma', 'yo_bawo_le_se_le', 'yo_tomati_yin'],
-      rapportDelta: 10,
-      reactions: {
-        firstTry: {
-          native:
-            'Eléyìí jẹ́ five hundred, paint kan jẹ́ four thousand, agbọ̀n kan jẹ́ sixty thousand. Tòmátì tí a ṣẹ̀ṣẹ̀ kó dé láàárọ̀ yìí ni o!',
-          phonetic:
-            'eh-leh-yee jeh five hundred, paint kahn jeh four thousand, ahg-bawn kahn jeh sixty thousand. toh-mah-tee tee ah sheh-sheh koh deh lah-ah-raw yee nee oh!',
-          en: 'This one is ₦500, a paint is ₦4,000, a basket is ₦60,000. These just came in from the farm this morning!',
-        },
-        retry: {
-          native: 'Bẹ́ẹ̀ ni. Eléyìí jẹ́ five hundred, paint kan jẹ́ four thousand, agbọ̀n kan jẹ́ sixty thousand.',
-          phonetic: 'beh-eh nee. eh-leh-yee jeh five hundred, paint kahn jeh four thousand, ahg-bawn kahn jeh sixty thousand.',
-          en: 'That is right. This one is ₦500, a paint is ₦4,000, a basket is ₦60,000.',
-        },
-        missedCritical: {
-          native: 'Agbọ̀n kan jẹ́ sixty thousand.',
-          phonetic: 'ahg-bawn kahn jeh sixty thousand.',
-          en: 'A basket is ₦60,000.',
-        },
-        skipped: {
-          native: 'Paint kan jẹ́ four thousand, agbọ̀n kan jẹ́ sixty thousand.',
-          phonetic: 'paint kahn jeh four thousand, ahg-bawn kahn jeh sixty thousand.',
-          en: 'A paint is ₦4,000, a basket is ₦60,000.',
-        },
-      },
-    },
-    {
-      kind: 'choose',
-      id: 'yo_s4',
-      nudge:
-        'You came to Balogun to buy in bulk, so you want the basket — ₦60,000. How hard do you push? Bargaining is expected, but how far you go changes how she takes it.',
-      options: [
-        {
-          id: 'yo_c_low',
-          label: 'Offer ₦40,000 — cheeky',
-          line: {
-            native: 'Hà, ẹ dín in kù ma! Ẹ ṣe é ní forty thousand.',
-            phonetic: 'hah, eh deen een koo mah! eh sheh eh nee forty thousand.',
-            en: 'Ah, bring it down, ma! Do it for ₦40,000.',
+        chunks: ['yo_e', YORUBA_GREETING_CHUNK[part], 'yo_ma'],
+        rapportDelta: 15,
+        // True of every reply she can give, including the curt ones.
+        afterNote: `Notice what she said back: "${greet.cas}", with no "Ẹ". The elder drops the respect marker for the younger person — and when she is pleased with you, she calls you "ọmọ mi", my child. You never drop it for her.`,
+        reactions: {
+          firstTry: {
+            native: `${greet.cas} ọmọ mi, ṣé dáadáa ni?`,
+            phonetic: `${GREETING_PHONETIC[part]} aw-maw mee, sheh dah-ah-dah-ah nee?`,
+            en: `${greet.en}, my child. Are you well?`,
           },
-          rapportDelta: -5,
-          price: 55000,
-          reaction: {
-            native: 'Hà hà! Ọmọ mi, ṣé o fẹ́ kí n pàdánù ni? Fifty-five thousand.',
-            phonetic: 'hah hah! aw-maw mee, sheh oh feh kee n pah-dah-noo nee? fifty-five thousand.',
-            en: 'Ha ha! My child, do you want me to make a loss? ₦55,000.',
+          retry: {
+            native: `Yẹn ni! ${greet.cas} ọmọ mi. Ṣé dáadáa ni?`,
+            phonetic: `yen nee! ${GREETING_PHONETIC[part]} aw-maw mee. sheh dah-ah-dah-ah nee?`,
+            en: `That's it! ${greet.en}, my child. Are you well?`,
+          },
+          missedCritical: {
+            native: `Mm. ${greet.cas}.`,
+            phonetic: `mm. ${GREETING_PHONETIC[part]}.`,
+            en: `Mm. ${greet.en}.`,
+          },
+          skipped: {
+            native: `${greet.cas}. Ṣé dáadáa ni?`,
+            phonetic: `${GREETING_PHONETIC[part]}. sheh dah-ah-dah-ah nee?`,
+            en: `${greet.en}. Are you well?`,
           },
         },
-        {
-          id: 'yo_c_fair',
-          label: 'Ask for her last price — the usual move',
-          line: {
-            native: 'Ó wọ́n díẹ̀ ma. Kí ni last price yín?',
-            phonetic: 'oh wawn dee-eh mah. kee nee last price yeen?',
-            en: 'It is a bit expensive, ma. What is your last price?',
-          },
-          rapportDelta: 10,
-          price: 50000,
-          reaction: {
-            native: 'Ọmọ mi, o mọ ọjà! Fifty thousand, last price nìyẹn.',
-            phonetic: 'aw-maw mee, oh maw aw-jah! fifty thousand, last price nee-yen.',
-            en: 'My child, you know the market! ₦50,000 — that is my last price.',
-          },
-        },
-        {
-          id: 'yo_c_high',
-          label: 'Offer ₦58,000 — barely a bargain',
-          line: {
-            native: 'Ẹ jọ̀ọ́ ma, ẹ ṣe é fún mi ní fifty-eight thousand.',
-            phonetic: 'eh jaw-aw mah, eh sheh eh foon mee nee fifty-eight thousand.',
-            en: 'Please ma, do it for me at ₦58,000.',
-          },
-          rapportDelta: 5,
-          price: 58000,
-          reaction: {
-            native: 'Ó dáa ọmọ mi, mo gbà. Fifty-eight thousand.',
-            phonetic: 'oh dah aw-maw mee, moh gbah. fifty-eight thousand.',
-            en: 'Alright my child, I accept. ₦58,000.',
-          },
-        },
-      ],
-    },
-    {
-      kind: 'say',
-      id: 'yo_s5',
-      nudge:
-        'Close it. Agree, ask her to wrap it for you — and ask for your jàra, the little extra a trader throws in for a good customer. Asking is expected, not greedy.',
-      line: {
-        native: 'Ó dáa ma, ẹ bá mi dì í. Ẹ jọ̀ọ́, ẹ fi jàra sí i!',
-        phonetic: 'oh dah mah, eh bah mee dee ee. eh jaw-aw, eh fee jah-rah see ee!',
-        en: 'Alright ma, wrap it up for me. Please, add a little extra!',
       },
-      chunks: ['yo_o_daa', 'yo_ma', 'yo_e_ba_mi_di', 'yo_ejoo', 'yo_e_fi_jara'],
-      rapportDelta: 20,
-      reactions: {
-        firstTry: {
-          native: 'Mo ti fi jàra sí i. O ṣeun ọmọ mi, máa bọ̀ o!',
-          phonetic: 'moh tee fee jah-rah see ee. oh sheh-oon aw-maw mee, mah baw oh!',
-          en: 'I have added a little extra. Thank you my child, do come again!',
+      {
+        kind: 'say',
+        id: 'yo_s2b',
+        nudge:
+          'She asked if you are well. Answer her — and greet her trade too. At the market you wish a trader well with "Ẹ kú ọjà", roughly "well done with the trading".',
+        line: {
+          native: 'Dáadáa ni ma. Ẹ kú ọjà o!',
+          phonetic: 'dah-ah-dah-ah nee mah. eh koo aw-jah oh!',
+          en: 'I am well, ma. Well done with the trading!',
         },
-        retry: {
-          native: 'Ó dáa, mo ti fi jàra sí i. Máa bọ̀ o.',
-          phonetic: 'oh dah, moh tee fee jah-rah see ee. mah baw oh.',
-          en: 'Alright, I have added a little extra. Do come again.',
-        },
-        missedCritical: {
-          native: 'Ó dáa. Mo ti dì í.',
-          phonetic: 'oh dah. moh tee dee ee.',
-          en: 'Alright. I have wrapped it.',
-        },
-        skipped: {
-          native: 'Mo ti dì í. O ṣeun.',
-          phonetic: 'moh tee dee ee. oh sheh-oon.',
-          en: 'I have wrapped it. Thank you.',
+        chunks: ['yo_daadaa_ni', 'yo_ma', 'yo_e', 'yo_ku_oja'],
+        rapportDelta: 10,
+        reactions: {
+          firstTry: {
+            native: 'O ṣé o, ọmọ mi! Kí lo fẹ́ rà?',
+            phonetic: 'oh sheh oh, aw-maw mee! kee loh feh rah?',
+            en: 'Thank you, my child! What would you like to buy?',
+          },
+          retry: {
+            native: 'O ṣé o. Kí lo fẹ́ rà?',
+            phonetic: 'oh sheh oh. kee loh feh rah?',
+            en: 'Thank you. What would you like to buy?',
+          },
+          missedCritical: {
+            native: 'Mm. Kí lo fẹ́ rà?',
+            phonetic: 'mm. kee loh feh rah?',
+            en: 'Mm. What do you want?',
+          },
+          skipped: {
+            native: 'Kí lo fẹ́ rà?',
+            phonetic: 'kee loh feh rah?',
+            en: 'What would you like to buy?',
+          },
         },
       },
-    },
-  ],
+      {
+        kind: 'say',
+        id: 'yo_s3',
+        nudge:
+          'Now ask how she sells her tomatoes. She sells several measures at different prices, so ask how she sells them rather than the price of one thing. Keep "Ẹ jọ̀ọ́" — please — in front.',
+        line: {
+          native: 'Ẹ jọ̀ọ́ ma, báwo lẹ ṣe lé tòmátì yín?',
+          phonetic: 'eh jaw-aw mah, bah-woh leh sheh leh toh-mah-tee yeen?',
+          en: 'Please ma, how are you selling your tomatoes?',
+        },
+        chunks: ['yo_ejoo', 'yo_ma', 'yo_bawo_le_se_le', 'yo_tomati_yin'],
+        rapportDelta: 10,
+        reactions: {
+          firstTry: {
+            native:
+              'Eléyìí jẹ́ five hundred, paint kan jẹ́ four thousand, agbọ̀n kan jẹ́ sixty thousand. Tòmátì tí a ṣẹ̀ṣẹ̀ kó dé láàárọ̀ yìí ni o!',
+            phonetic:
+              'eh-leh-yee jeh five hundred, paint kahn jeh four thousand, ahg-bawn kahn jeh sixty thousand. toh-mah-tee tee ah sheh-sheh koh deh lah-ah-raw yee nee oh!',
+            en: 'This one is ₦500, a paint is ₦4,000, a basket is ₦60,000. These just came in from the farm this morning!',
+          },
+          retry: {
+            native: 'Bẹ́ẹ̀ ni. Eléyìí jẹ́ five hundred, paint kan jẹ́ four thousand, agbọ̀n kan jẹ́ sixty thousand.',
+            phonetic: 'beh-eh nee. eh-leh-yee jeh five hundred, paint kahn jeh four thousand, ahg-bawn kahn jeh sixty thousand.',
+            en: 'That is right. This one is ₦500, a paint is ₦4,000, a basket is ₦60,000.',
+          },
+          missedCritical: {
+            native: 'Agbọ̀n kan jẹ́ sixty thousand.',
+            phonetic: 'ahg-bawn kahn jeh sixty thousand.',
+            en: 'A basket is ₦60,000.',
+          },
+          skipped: {
+            native: 'Paint kan jẹ́ four thousand, agbọ̀n kan jẹ́ sixty thousand.',
+            phonetic: 'paint kahn jeh four thousand, ahg-bawn kahn jeh sixty thousand.',
+            en: 'A paint is ₦4,000, a basket is ₦60,000.',
+          },
+        },
+      },
+      {
+        kind: 'say',
+        id: 'yo_s3b',
+        nudge:
+          'She rattled that off fast. Whether or not you caught it all, this is the phrase to have ready: ask her to say it again. It is polite, not a failure.',
+        line: {
+          native: 'Ẹ jọ̀ọ́ ma, ẹ tún un sọ.',
+          phonetic: 'eh jaw-aw mah, eh toon oon saw.',
+          en: 'Please ma, say it again.',
+        },
+        chunks: ['yo_ejoo', 'yo_ma', 'yo_tun_un_so'],
+        rapportDelta: 5,
+        slowReply: true,
+        reactions: {
+          firstTry: {
+            native: 'Ó dáa. Eléyìí, five hundred. Paint kan, four thousand. Agbọ̀n kan, sixty thousand.',
+            phonetic: 'oh dah. eh-leh-yee, five hundred. paint kahn, four thousand. ahg-bawn kahn, sixty thousand.',
+            en: 'Alright. This one, ₦500. A paint, ₦4,000. A basket, ₦60,000.',
+          },
+          retry: {
+            native: 'Ó dáa. Eléyìí, five hundred. Paint kan, four thousand. Agbọ̀n kan, sixty thousand.',
+            phonetic: 'oh dah. eh-leh-yee, five hundred. paint kahn, four thousand. ahg-bawn kahn, sixty thousand.',
+            en: 'Alright. This one, ₦500. A paint, ₦4,000. A basket, ₦60,000.',
+          },
+          missedCritical: {
+            native: 'Eléyìí, five hundred. Paint kan, four thousand. Agbọ̀n kan, sixty thousand.',
+            phonetic: 'eh-leh-yee, five hundred. paint kahn, four thousand. ahg-bawn kahn, sixty thousand.',
+            en: 'This one, ₦500. A paint, ₦4,000. A basket, ₦60,000.',
+          },
+          skipped: {
+            native: 'Eléyìí, five hundred. Paint kan, four thousand. Agbọ̀n kan, sixty thousand.',
+            phonetic: 'eh-leh-yee, five hundred. paint kahn, four thousand. ahg-bawn kahn, sixty thousand.',
+            en: 'This one, ₦500. A paint, ₦4,000. A basket, ₦60,000.',
+          },
+        },
+      },
+      {
+        kind: 'choose',
+        id: 'yo_s4',
+        nudge:
+          'You came to Balogun to buy in bulk, so you want the basket — ₦60,000. How do you bargain? It is expected, but how you go about it changes how she takes it.',
+        options: [
+          {
+            id: 'yo_c_low',
+            label: 'Offer ₦40,000 — cheeky',
+            line: {
+              native: 'Hà, ẹ dín in kù ma! Ẹ ṣe é ní forty thousand.',
+              phonetic: 'hah, eh deen een koo mah! eh sheh eh nee forty thousand.',
+              en: 'Ah, bring it down, ma! Do it for ₦40,000.',
+            },
+            rapportDelta: -5,
+            price: 55000,
+            reaction: {
+              native: 'Hà hà! Ọmọ mi, ṣé o fẹ́ kí n pàdánù ni? Fifty-five thousand.',
+              phonetic: 'hah hah! aw-maw mee, sheh oh feh kee n pah-dah-noo nee? fifty-five thousand.',
+              en: 'Ha ha! My child, do you want me to make a loss? ₦55,000.',
+            },
+          },
+          {
+            id: 'yo_c_fair',
+            label: 'Ask for her last price — the usual move',
+            line: {
+              native: 'Ó wọ́n díẹ̀ ma. Kí ni last price yín?',
+              phonetic: 'oh wawn dee-eh mah. kee nee last price yeen?',
+              en: 'It is a bit expensive, ma. What is your last price?',
+            },
+            rapportDelta: 10,
+            price: 50000,
+            reaction: {
+              native: 'Ọmọ mi, o mọ ọjà! Fifty thousand, last price nìyẹn.',
+              phonetic: 'aw-maw mee, oh maw aw-jah! fifty thousand, last price nee-yen.',
+              en: 'My child, you know the market! ₦50,000 — that is my last price.',
+            },
+          },
+          {
+            id: 'yo_c_high',
+            label: 'Offer ₦58,000 — barely a bargain',
+            line: {
+              native: 'Ẹ jọ̀ọ́ ma, ẹ ṣe é fún mi ní fifty-eight thousand.',
+              phonetic: 'eh jaw-aw mah, eh sheh eh foon mee nee fifty-eight thousand.',
+              en: 'Please ma, do it for me at ₦58,000.',
+            },
+            rapportDelta: 5,
+            price: 58000,
+            reaction: {
+              native: 'Ó dáa ọmọ mi, mo gbà. Fifty-eight thousand.',
+              phonetic: 'oh dah aw-maw mee, moh gbah. fifty-eight thousand.',
+              en: 'Alright my child, I accept. ₦58,000.',
+            },
+          },
+          {
+            id: 'yo_c_walk',
+            label: 'Walk away — see if she calls you back',
+            line: {
+              native: 'Ó dáa ma, mo ń lọ.',
+              phonetic: 'oh dah mah, moh n law.',
+              en: 'Alright ma, I am going.',
+            },
+            // She does call you back, but asking her last price would have
+            // done better: walking away is a gamble, not a trick.
+            rapportDelta: 0,
+            price: 52000,
+            reaction: {
+              native: 'Wá, wá! Ọmọ mi, mú u ní fifty-two thousand.',
+              phonetic: 'wah, wah! aw-maw mee, moo oo nee fifty-two thousand.',
+              en: 'Come, come! My child, take it for ₦52,000.',
+            },
+          },
+        ],
+      },
+      {
+        kind: 'say',
+        id: 'yo_s4b',
+        nudge:
+          'You need peppers for the stew too. You already know how to ask — say it yourself this time. The only new word is "ata", pepper.',
+        line: {
+          native: 'Ẹ jọ̀ọ́ ma, báwo lẹ ṣe lé ata yín?',
+          phonetic: 'eh jaw-aw mah, bah-woh leh sheh leh ah-tah yeen?',
+          en: 'Please ma, how are you selling your peppers?',
+        },
+        chunks: ['yo_ejoo', 'yo_ma', 'yo_bawo_le_se_le', 'yo_ata_yin'],
+        recall: { hintChunks: ['yo_ata_yin'] },
+        rapportDelta: 10,
+        reactions: {
+          firstTry: {
+            native: 'Ata rodo? Paint kan jẹ́ three thousand. Kí n fi kún un?',
+            phonetic: 'ah-tah roh-doh? paint kahn jeh three thousand. kee n fee koon oon?',
+            en: 'Scotch bonnets? A paint is ₦3,000. Shall I add it?',
+          },
+          retry: {
+            native: 'Bẹ́ẹ̀ ni. Paint ata kan jẹ́ three thousand. Kí n fi kún un?',
+            phonetic: 'beh-eh nee. paint ah-tah kahn jeh three thousand. kee n fee koon oon?',
+            en: 'That is right. A paint of peppers is ₦3,000. Shall I add it?',
+          },
+          missedCritical: {
+            native: 'Paint kan jẹ́ three thousand.',
+            phonetic: 'paint kahn jeh three thousand.',
+            en: 'A paint is ₦3,000.',
+          },
+          skipped: {
+            native: 'Ata? Paint kan jẹ́ three thousand.',
+            phonetic: 'ah-tah? paint kahn jeh three thousand.',
+            en: 'Peppers? A paint is ₦3,000.',
+          },
+        },
+      },
+      {
+        kind: 'say',
+        id: 'yo_s5',
+        nudge:
+          'Close it. Agree, ask her to wrap it all for you — and ask for your jàra, the little extra a trader throws in for a good customer. Asking is expected, not greedy.',
+        line: {
+          native: 'Ó dáa ma, ẹ bá mi dì í. Ẹ jọ̀ọ́, ẹ fi jàra sí i!',
+          phonetic: 'oh dah mah, eh bah mee dee ee. eh jaw-aw, eh fee jah-rah see ee!',
+          en: 'Alright ma, wrap it up for me. Please, add a little extra!',
+        },
+        chunks: ['yo_o_daa', 'yo_ma', 'yo_e_ba_mi_di', 'yo_ejoo', 'yo_e_fi_jara'],
+        rapportDelta: 20,
+        reactions: {
+          firstTry: {
+            native: 'Mo ti fi jàra sí i. O ṣeun ọmọ mi, máa bọ̀ o!',
+            phonetic: 'moh tee fee jah-rah see ee. oh sheh-oon aw-maw mee, mah baw oh!',
+            en: 'I have added a little extra. Thank you my child, do come again!',
+          },
+          retry: {
+            native: 'Ó dáa, mo ti fi jàra sí i. Máa bọ̀ o.',
+            phonetic: 'oh dah, moh tee fee jah-rah see ee. mah baw oh.',
+            en: 'Alright, I have added a little extra. Do come again.',
+          },
+          missedCritical: {
+            native: 'Ó dáa. Mo ti dì í.',
+            phonetic: 'oh dah. moh tee dee ee.',
+            en: 'Alright. I have wrapped it.',
+          },
+          skipped: {
+            native: 'Mo ti dì í. O ṣeun.',
+            phonetic: 'moh tee dee ee. oh sheh-oon.',
+            en: 'I have wrapped it. Thank you.',
+          },
+        },
+      },
+    ],
+  };
+}
+
+const GREETING_PHONETIC: Record<DayPart, string> = {
+  m: 'kah-ah-raw',
+  a: 'kah-ah-sahn',
+  e: 'kah-ah-leh',
 };
+
+const YORUBA_BY_PART: Record<DayPart, Encounter> = {
+  m: yorubaEncounter('m'),
+  a: yorubaEncounter('a'),
+  e: yorubaEncounter('e'),
+};
+
+export const YORUBA_ENCOUNTER: Encounter = YORUBA_BY_PART.m;
 
 // ---------------------------------------------------------------------------
 // HAUSA — Alhaji Musa, Kurmi Market, Kano
@@ -841,8 +1004,19 @@ export const ENCOUNTERS: Record<string, Encounter> = {
   nairobi_matatu: SWAHILI_ENCOUNTER,
 };
 
-export function getEncounter(scenarioId: string): Encounter | null {
+/**
+ * The encounter for a scenario at a given part of the day. Only the Yorùbá
+ * greeting varies with the clock; the same object is returned each time, so
+ * callers can compare it by identity.
+ */
+export function getEncounter(scenarioId: string, part: DayPart = 'm'): Encounter | null {
+  if (scenarioId === YORUBA_ENCOUNTER.scenarioId) return YORUBA_BY_PART[part];
   return ENCOUNTERS[scenarioId] ?? null;
+}
+
+/** Every encounter the app can play, including each time-of-day variant. */
+export function allEncounters(): Encounter[] {
+  return [...Object.values(YORUBA_BY_PART), ...Object.values(ENCOUNTERS).filter((e) => e !== YORUBA_ENCOUNTER)];
 }
 
 /** Every line the lesson can speak aloud: trader lines, targets, reactions and choices. */

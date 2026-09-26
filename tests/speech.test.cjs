@@ -77,7 +77,8 @@ test('refuses audio the players cannot play as-is', () => {
 // What the speech route will agree to say
 // ---------------------------------------------------------------------------
 
-const { spokenLines, YORUBA_ENCOUNTER } = load('src/data/encounters.ts');
+const loadEncounters = () => load('src/data/encounters.ts', { './dialogue': load('src/data/dialogue.ts') });
+const { spokenLines, YORUBA_ENCOUNTER } = loadEncounters();
 
 test('the allowed script covers every line the lesson plays', () => {
   const lines = new Set(spokenLines(YORUBA_ENCOUNTER));
@@ -96,7 +97,7 @@ test('the allowed script covers every line the lesson plays', () => {
 });
 
 test('the route accepts Yorùbá lesson lines and nothing for Live languages', () => {
-  const encounters = load('src/data/encounters.ts');
+  const encounters = loadEncounters();
   const { ttsScript } = load('src/lib/speech-script.ts', {
     '@/data/encounters': encounters,
     '@/data/scenario-specs': load('src/data/scenario-specs.ts'),
@@ -105,9 +106,24 @@ test('the route accepts Yorùbá lesson lines and nothing for Live languages', (
   const script = ttsScript();
   // The bug this guards: the map was keyed wrongly and came out empty, so
   // every Yorùbá line was refused and the lesson fell silent.
-  assert.equal(script.get('Èdè Yorùbá')?.size, new Set(encounters.spokenLines(YORUBA_ENCOUNTER)).size);
+  const everyVariant = new Set(
+    ['m', 'a', 'e'].flatMap((part) => encounters.spokenLines(encounters.getEncounter('balogun_tomatoes', part)))
+  );
+  assert.equal(script.get('Èdè Yorùbá')?.size, everyVariant.size);
+  // The greeting follows the clock, so the evening one must be speakable too.
+  assert.ok(script.get('Èdè Yorùbá').has('Ẹ káalẹ́ ma'));
   assert.ok(script.get('Èdè Yorùbá').has('Ẹ jọ̀ọ́ ma, báwo lẹ ṣe lé tòmátì yín?'));
   assert.equal(script.has('Kiswahili'), false);
+});
+
+test('the greeting follows the part of the day, as the clock names it', () => {
+  const encounters = loadEncounters();
+  const greetingOf = (part) => encounters.getEncounter('balogun_tomatoes', part).steps[0].line.native;
+  assert.equal(greetingOf('m'), 'Ẹ káàárọ̀ ma');
+  assert.equal(greetingOf('a'), 'Ẹ káàsán ma');
+  assert.equal(greetingOf('e'), 'Ẹ káalẹ́ ma');
+  // The same object each time, so a lesson in progress is never rebuilt.
+  assert.equal(encounters.getEncounter('balogun_tomatoes', 'a'), encounters.getEncounter('balogun_tomatoes', 'a'));
 });
 
 // ---------------------------------------------------------------------------

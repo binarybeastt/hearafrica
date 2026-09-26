@@ -61,7 +61,6 @@ export default function HearAfricaPage() {
   const world = WORLDS[market];
   const traderId = world.traderId;
   const activeSpec = ALL_SCENARIOS[world.scenario];
-  const activeEncounter = getEncounter(activeSpec.id);
 
   /** Her posture is the rapport meter: derived from what just happened. */
   const traderMood: TraderMood = !snapshot
@@ -91,6 +90,9 @@ export default function HearAfricaPage() {
 
   // Conversation state
   const [convo, setConvo] = useState<ConversationSession | null>(null);
+  // The greeting follows the clock at the moment the learner walks up, and then
+  // stays put: the lesson must not change language under them mid-way.
+  const activeEncounter = getEncounter(activeSpec.id, convo?.b);
 
   // Intro fade out after 2.4s
   useEffect(() => {
@@ -175,7 +177,8 @@ export default function HearAfricaPage() {
       setSnapshot(null);
       const np = NPCS[npcId];
       if (!np) return;
-      const h = lagosH(simT);
+      // The world's own local time: Nairobi's morning is not Lagos's.
+      const h = (lagosH(simT) + CLOCK_CITIES[world.clock].offset) % 24;
       const newSession: ConversationSession = {
         id: npcId,
         np,
@@ -189,7 +192,7 @@ export default function HearAfricaPage() {
       };
       setConvo(newSession);
     },
-    [simT]
+    [simT, world.clock]
   );
 
   const handleCloseConvo = useCallback(() => {
@@ -330,7 +333,14 @@ export default function HearAfricaPage() {
             market={market}
             traderName={activeSpec.traderName}
             pitchNoun={world.pitchNoun}
-            onApproachTrader={() => handleOpenConvo(traderId)}
+            onApproachTrader={() => {
+              // After hours the stall is packed up; the lesson waits for daytime.
+              if (!isNpcActive) {
+                showToast(`${activeSpec.traderName} has packed up for the day. Move the clock to daytime.`);
+                return;
+              }
+              handleOpenConvo(traderId);
+            }}
             paused={!!convo}
             focusTrader={barActive}
             traderLine={barActive ? snapshot?.traderLine ?? null : null}

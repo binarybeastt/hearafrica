@@ -63,10 +63,12 @@ const YORUBA_CHUNKS: Record<string, Chunk> = {
     gloss: 'good afternoon',
     role: 'greeting',
   },
-  yo_kuule: {
-    id: 'yo_kuule',
-    native: 'kúulẹ́',
-    phonetic: 'koo-leh',
+  // Spelled as the world clock spells it (GREET in dialogue.ts), so the
+  // lesson and the clock card never teach two forms of the same greeting.
+  yo_kaale: {
+    id: 'yo_kaale',
+    native: 'káalẹ́',
+    phonetic: 'kah-ah-leh',
     gloss: 'good evening',
     role: 'greeting',
   },
@@ -91,6 +93,36 @@ const YORUBA_CHUNKS: Record<string, Chunk> = {
     phonetic: 'eh jaw-aw',
     gloss: 'please',
     role: 'politeness',
+  },
+  yo_daadaa_ni: {
+    id: 'yo_daadaa_ni',
+    native: 'Dáadáa ni',
+    phonetic: 'dah-ah-dah-ah nee',
+    gloss: 'I am well (it is fine)',
+    role: 'greeting',
+  },
+  yo_ku_oja: {
+    id: 'yo_ku_oja',
+    native: 'kú ọjà o',
+    phonetic: 'koo aw-jah oh',
+    gloss: 'well done with the trading (to a trader)',
+    role: 'greeting',
+    toneHint: 'Said with Ẹ to an elder trader: Ẹ kú ọjà o. She answers "O ṣé o" — thank you.',
+  },
+  yo_tun_un_so: {
+    id: 'yo_tun_un_so',
+    native: 'ẹ tún un sọ',
+    phonetic: 'eh toon oon saw',
+    gloss: 'say it again',
+    role: 'politeness',
+    toneHint: 'Asking someone to repeat is normal and polite. It is how you keep a conversation going.',
+  },
+  yo_ata_yin: {
+    id: 'yo_ata_yin',
+    native: 'ata yín',
+    phonetic: 'ah-tah yeen',
+    gloss: 'your peppers',
+    role: 'noun',
   },
   yo_bawo_le_se_le: {
     id: 'yo_bawo_le_se_le',
