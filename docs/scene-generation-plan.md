@@ -87,4 +87,4 @@ lesson in the lower third, badged **Draft — not yet reviewed by a fluent speak
 - [x] 1. Scene kit
 - [x] 2. Composer and templates
 - [x] 3. Generation
-- [ ] 4. UI
+- [x] 4. UI — built and exercised up to the generated lesson reaching the page; the 3D scene itself still needs a look in a visible browser

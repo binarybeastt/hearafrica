@@ -65,7 +65,10 @@ export const DRAFT_SCHEMA = {
       type: 'object',
       properties: {
         rule: { type: 'string', description: 'The etiquette point this situation turns on, in English.' },
-        goal: { type: 'string', description: 'What the learner wants, as a verb phrase: "get the tap fixed this week".' },
+        goal: {
+          type: 'string',
+          description: 'What the learner wants, as a verb phrase with no pronouns for either person: "get the tap fixed this week".',
+        },
       },
       required: ['rule', 'goal'],
     },
@@ -147,7 +150,7 @@ CONTENT
 
 SCENE
 - Pick the template that fits: "street" for most outdoor errands, "market-lane" for markets, "bus-stop" for transport.
-- Choose dressing and vehicles that fit the place. "stands" is where the person is when the learner arrives.
+- Choose dressing and vehicles that fit the place. "stands" is where the person is when the learner arrives: "stall" or "kiosk" for sellers, "doorway" for someone at their home or shop, "open" for anyone else (a conductor, a passer-by, someone waiting).
 
 If the description is not a real-life situation someone could practise, still produce a polite everyday exchange in the same place.`;
 }

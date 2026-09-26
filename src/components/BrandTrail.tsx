@@ -10,6 +10,8 @@ interface BrandTrailProps {
   countryCode?: string;
   /** Which world the learner is standing in, once at market level. */
   market?: WorldId;
+  /** Names the place instead of the world's own, for a generated scene. */
+  placeLabel?: string;
   onNavigate: (viewKey: string) => void;
 }
 
@@ -24,6 +26,7 @@ export const BrandTrail: React.FC<BrandTrailProps> = ({
   countryName,
   countryCode,
   market = 'balogun',
+  placeLabel,
   onNavigate,
 }) => {
   const world = WORLDS[market] ?? WORLDS.balogun;
@@ -42,7 +45,7 @@ export const BrandTrail: React.FC<BrandTrailProps> = ({
   }
 
   if (level === 'market') {
-    parts.push(world.place);
+    parts.push(placeLabel ? [placeLabel, world.place[1]] : world.place);
   }
 
   return (

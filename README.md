@@ -109,12 +109,27 @@ Measured against the real provider, synthesis **drops the last word of a line**,
 
 Whether any residue is real clipping or only the output transcription losing its last token is **not settled** — telling them apart needs someone to listen to the takes.
 
+## Practise your own situation
+
+**✨ Practise your own situation** on the map drafts a scene and a guided lesson from a learner's description — *"asking my elderly landlord to fix the tap before the weekend"*. See `docs/scene-generation-plan.md`.
+
+- **The model chooses; the kit builds.** Gemini (`gemini-3.8-flash`, structured output) returns choices, never geometry: a template (`street`, `market-lane`, `bus-stop`), props, vehicles, and the person you meet. `composeScene` assembles it from the same kit the hand-built worlds use, deterministically from a seed, keeping the person and your walk-in path clear.
+- **One lesson format.** The draft becomes a `ScenarioSpec` and `Encounter` in the hand-written shapes, so the lesson engine, the judge, TTS and free practice run it unchanged. The free-practice persona is built from a template, not written by the model, so the tool contract the Live client needs is always there.
+- **Nothing is trusted.** Every field is checked, clipped or defaulted (`normalizeLayout`, `buildGeneratedLesson`); a draft with nothing to say is refused.
+- **It is a draft, and says so.** No fluent speaker has read the language. In testing, a generated Yorùbá greeting came back as a garbled *Ẹkásàn-án*, and the judge holds the learner to whatever the script says. Demo with a checked scenario, not one generated live.
+- Generated lessons live in memory on the server (for `/api/speech`'s allow-list) and in the browser for the session. Voicing a fresh one runs into the TTS tier's 10 requests a minute, like any fresh lesson.
+
+`/dev/scenes` previews composed scenes in development, and takes a layout pasted as JSON.
+
 ## Architecture
 
 - `src/app/page.tsx`: the map, the handoff into a 3D world, and which UI the conversation uses.
 - `src/data/worlds.ts`: the 3D worlds and everything each one implies — trader, scenario, breadcrumb, clock city, HUD nouns.
 - `src/components/WorldCanvas.tsx`: the illustrated 2D map, Africa down to a city.
 - `src/data/geo-admin1.ts`: first-order divisions — Nigeria's states, Ghana's regions, Benin and Niger borderlands (Natural Earth), and Kenya's 47 counties (geoBoundaries, public domain). A language sphere tints the ones it covers, so a language with no polygons under it draws from its hull alone.
+- `src/components/scene/kit/`: what every world is built from — shared caches, palettes, props, the pin and approach ring, crowd and posture loops, daylight. `npm run check:scenes` proves a refactor leaves each world's scene graph unchanged.
+- `src/components/scene/compose.ts`, `src/data/scene-layout.ts`: composing a world from a layout.
+- `src/data/generated.ts`, `src/lib/scenario-generator.ts`, `src/app/api/generate-scenario/`: drafting a lesson from a description.
 - `src/components/scene/`: the 3D worlds — `balogun-scene.ts` (which also defines the `BuiltScene` contract the others implement), `kejetia-scene.ts`, `nairobi-scene.ts`, `MarketScene3D.tsx` (renderer, walking, two-shot camera, speech bubble), `people.ts`, `vehicles.ts`.
 - `src/components/EncounterBar.tsx`: the guided lesson as a lower third, used inside the 3D worlds.
 - `src/components/ConversationDrawer.tsx`: the full panel, used for free practice and for scenarios with no 3D world (Hausa, Igbo).
@@ -132,6 +147,7 @@ Whether any residue is real clipping or only the output transcription losing its
 npm test
 npm run typecheck
 npm run build
+npm run check:scenes
 npm run check:live
 ```
 

@@ -52,6 +52,13 @@ function line(value: unknown): Line | null {
   return { native, phonetic: text(v.phonetic, 200), en: text(v.en, 200, native) };
 }
 
+function moneyRule(money: { asking: number; fair: number; symbol: string } | null): string {
+  if (!money) return 'MONEY: No money changes hands here; current_price stays unset.';
+  const asking = `${money.symbol}${money.asking.toLocaleString('en')}`;
+  if (money.fair >= money.asking) return `MONEY: The amount is ${asking}. It is not up for negotiation.`;
+  return `MONEY: You start at ${asking}. You can come down to about ${money.symbol}${money.fair.toLocaleString('en')} if they negotiate politely.`;
+}
+
 /**
  * The free-practice persona. Built here rather than written by the model, so
  * the tool contract and the rules about staying in character are always intact.
@@ -68,15 +75,15 @@ function systemPrompt(p: {
   money: { asking: number; fair: number; symbol: string } | null;
 }): string {
   const { spec } = p;
-  return `You are ${p.name}, ${p.role}, at ${p.place}. ${p.who}
+  return `You are ${p.name} (${p.role}). Where: ${p.place}. ${p.who}
 You are speaking in real time with a language learner who has just walked up to you.
 
 RULES:
 1. LANGUAGE: Speak ${spec.languageName} (ISO code: ${spec.languageCode}) the way people in that place really speak it, with its everyday loanwords, not textbook forms. Keep each turn short. Only switch to English if the learner explicitly asks.
 2. RESPECT: ${p.rule} ${p.elder ? 'You are older than the learner and expect to be addressed respectfully.' : 'You are about the learner’s age; stiff, over-formal speech amuses you.'}
-3. THE SITUATION: The learner wants to ${p.goal}. Let them get there, but react honestly: warmer when they are polite and clear, cooler when they are rude.
+3. THE SITUATION: What the learner came to do, in their words: "${p.goal}". Let them get there, but react honestly: warmer when they are polite and clear, cooler when they are rude.
 4. NATURAL CORRECTION: Never say "wrong" or break character. If they use a wrong form, use the right one naturally in your reply.
-5. ${p.money ? `MONEY: You start at ${p.money.symbol}${p.money.asking}. You can come down to about ${p.money.symbol}${p.money.fair} if they negotiate politely.` : 'MONEY: No money changes hands here; current_price stays unset.'}
+5. ${moneyRule(p.money)}
 6. TOOLS & SPOKEN RESPONSE:
    - On EVERY turn, you MUST invoke update_game_state(rapport_delta, current_price, deal_concluded, cultural_note) to reflect their etiquette${p.money ? ' and the price' : ''}.
    - You MUST ALWAYS ALSO speak your in-character reply out loud in ${spec.languageName}. Never remain silent after calling the tool.

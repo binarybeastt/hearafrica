@@ -12,6 +12,7 @@ import {
 } from '@/data/scenario-specs';
 import { GuidedEncounter } from '@/components/phases/GuidedEncounter';
 import { getEncounter } from '@/data/encounters';
+import { registeredLesson } from '@/data/generated-registry';
 
 /**
  * 'guided' is the coached, authored encounter: nudge -> model -> say -> check ->
@@ -28,7 +29,7 @@ const SPEC_BY_NPC: Record<string, ScenarioSpec> = {
 };
 
 const specFor = (npcId: string | undefined): ScenarioSpec =>
-  (npcId && SPEC_BY_NPC[npcId]) || ALL_SCENARIOS.yoruba;
+  (npcId && (registeredLesson(npcId)?.spec ?? SPEC_BY_NPC[npcId])) || ALL_SCENARIOS.yoruba;
 
 /** The scenarios reachable from the drawer's own language switcher. */
 const SWITCHABLE = ['yoruba', 'hausa', 'igbo', 'swahili'] as const;

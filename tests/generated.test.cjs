@@ -68,6 +68,14 @@ test('money, when involved, sets the price card and the fair price', () => {
   assert.equal(lesson.encounter.startingPrice, 20000);
   assert.equal(lesson.spec.targetFairPrice, 20000, 'a fair price above the asking price is clamped');
   assert.equal(lesson.encounter.steps[1].options[1].price, 500);
+  // Clamped to the asking price, so there is nothing to negotiate.
+  assert.match(lesson.spec.systemPrompt, /The amount is ₦20,000\. It is not up for negotiation\./);
+});
+
+test('a fixed price is stated as fixed, not as a negotiation', () => {
+  const lesson = buildGeneratedLesson({ ...DRAFT, money: { involved: true, item: 'fare', askingPrice: 500, fairPrice: 500 } }, meta);
+  assert.match(lesson.spec.systemPrompt, /The amount is ₦500\. It is not up for negotiation\./);
+  assert.doesNotMatch(lesson.spec.systemPrompt, /come down/);
 });
 
 test('a draft with nothing to say is refused', () => {

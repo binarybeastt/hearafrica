@@ -13,6 +13,8 @@ import type { TraderMood } from '@/components/scene/kit/types';
 import { getEncounter } from '@/data/encounters';
 import { ALL_SCENARIOS } from '@/data/scenario-specs';
 import { LanguageSelector } from '@/components/LanguageSelector';
+import { SituationComposer } from '@/components/SituationComposer';
+import type { GeneratedLesson } from '@/data/generated';
 import {
   ViewLevel,
   Country,
@@ -24,6 +26,9 @@ import { Landmark } from '@/data/landmarks-data';
 import { NPCS } from '@/data/market-data';
 import { WORLDS, WORLD_BY_LANGUAGE, WorldId, CLOCK_CITIES } from '@/data/worlds';
 import { lagosH, bucket, fmtTime, npcHere } from '@/lib/solar';
+
+/** What a generated scene's person stands at, for the HUD copy. */
+const STAND_NOUN = { stall: 'stall', kiosk: 'kiosk', doorway: 'door', open: 'spot' } as const;
 
 export default function HearAfricaPage() {
   // Simulation clock state
@@ -44,6 +49,14 @@ export default function HearAfricaPage() {
    */
   const inWorld = level === 'market';
 
+  // Leaving the world ends a generated scene. Only on the way out: on the way
+  // in, the map is still flying there when the scene is set.
+  const wasInWorld = useRef(inWorld);
+  useEffect(() => {
+    if (wasInWorld.current && !inWorld) setGenerated(null);
+    wasInWorld.current = inWorld;
+  }, [inWorld]);
+
   // Drop any lingering map hover as soon as the 3D world takes over.
   useEffect(() => {
     if (inWorld) setHover(null);
@@ -59,8 +72,16 @@ export default function HearAfricaPage() {
   /** Which world the learner is in. The map hands off to one of them. */
   const [market, setMarket] = useState<WorldId>('balogun');
   const world = WORLDS[market];
-  const traderId = world.traderId;
-  const activeSpec = ALL_SCENARIOS[world.scenario];
+
+  /**
+   * A scene drafted from the learner's own description. While it is set, the
+   * 3D world is composed from its layout and its lesson replaces the world's.
+   */
+  const [generated, setGenerated] = useState<GeneratedLesson | null>(null);
+  const [composerOpen, setComposerOpen] = useState(false);
+  const traderId = generated?.id ?? world.traderId;
+  const activeSpec = generated?.spec ?? ALL_SCENARIOS[world.scenario];
+  const pitchNoun = generated ? STAND_NOUN[generated.layout.character.stands] : world.pitchNoun;
 
   /** Her posture is the rapport meter: derived from what just happened. */
   const traderMood: TraderMood = !snapshot
@@ -175,7 +196,21 @@ export default function HearAfricaPage() {
     (npcId: string) => {
       setMode('guided');
       setSnapshot(null);
-      const np = NPCS[npcId];
+      const np =
+        NPCS[npcId] ??
+        (generated && npcId === generated.id
+          ? {
+              name: generated.spec.traderName,
+              role: generated.spec.traderRole,
+              x: 0,
+              y: 0,
+              elder: generated.spec.traderAgeGroup === 'elder',
+              female: generated.layout.character.gender === 'woman',
+              base: generated.spec.initialAskingPrice,
+              wrap: generated.layout.character.accent,
+              cloth: generated.layout.character.cloth,
+            }
+          : undefined);
       if (!np) return;
       // The world's own local time: Nairobi's morning is not Lagos's.
       const h = (lagosH(simT) + CLOCK_CITIES[world.clock].offset) % 24;
@@ -192,7 +227,7 @@ export default function HearAfricaPage() {
       };
       setConvo(newSession);
     },
-    [simT, world.clock]
+    [simT, world.clock, generated]
   );
 
   const handleCloseConvo = useCallback(() => {
@@ -239,6 +274,23 @@ export default function HearAfricaPage() {
     [enterWorld, handleNavTarget, handleOpenConvo, showToast]
   );
 
+  /** Walks the learner into a scene drafted from their description. */
+  const handleGeneratedReady = useCallback(
+    (lesson: GeneratedLesson) => {
+      setComposerOpen(false);
+      setConvo(null);
+      setMode('guided');
+      setSnapshot(null);
+      setGenerated(lesson);
+      // Any world gets the map to market level; the scene itself replaces it.
+      const base = WORLDS[WORLD_BY_LANGUAGE[lesson.language] ?? 'balogun'];
+      setMarket(base.id);
+      handleNavTarget(base.place[1]);
+      showToast(`Walk up to ${lesson.spec.traderName}, or tap the pin above them.`);
+    },
+    [handleNavTarget, showToast]
+  );
+
   const handleStartPractice = useCallback(
     (langId: string) => {
       const worldId = WORLD_BY_LANGUAGE[langId];
@@ -257,7 +309,8 @@ export default function HearAfricaPage() {
 
   // Whether the traders are out is a question about the world's own local time,
   // not about Lagos — the Nairobi stage was calling itself closed at 08:00.
-  const isNpcActive = npcHere(
+  // A generated scene is not a market: its person is there whenever you are.
+  const isNpcActive = !!generated || npcHere(
     (lagosH(simT) + CLOCK_CITIES[world.clock].offset) % 24
   );
   const barActive = inWorld && !!convo && mode === 'guided' && !!activeEncounter;
@@ -293,6 +346,7 @@ export default function HearAfricaPage() {
         countryName={curCountry?.n}
         countryCode={curCountry?.c}
         market={market}
+        placeLabel={generated?.spec.location}
         onNavigate={handleNavTarget}
       />
 
@@ -325,14 +379,42 @@ export default function HearAfricaPage() {
       />
       )}
 
+      {!inWorld && (
+        <button
+          type="button"
+          className="btn primary"
+          onClick={() => setComposerOpen(true)}
+          style={{
+            position: 'absolute',
+            right: '16px',
+            bottom: '16px',
+            zIndex: 30,
+            minHeight: '42px',
+            padding: '0 16px',
+            boxShadow: '3px 3px 0 var(--ink)',
+          }}
+        >
+          ✨ Practise your own situation
+        </button>
+      )}
+
+      {composerOpen && (
+        <SituationComposer
+          initialLanguage={activeLanguage ?? undefined}
+          onReady={handleGeneratedReady}
+          onClose={() => setComposerOpen(false)}
+        />
+      )}
+
       {/* At market level the illustrated map hands off to the 3D market. */}
       {inWorld && (
         <div style={{ position: 'absolute', inset: 0, zIndex: 25 }}>
           <MarketScene3D
             sunElevation={sunElevation}
             market={market}
+            layout={generated?.layout ?? null}
             traderName={activeSpec.traderName}
-            pitchNoun={world.pitchNoun}
+            pitchNoun={pitchNoun}
             onApproachTrader={() => {
               // After hours the stall is packed up; the lesson waits for daytime.
               if (!isNpcActive) {
@@ -347,6 +429,28 @@ export default function HearAfricaPage() {
             traderMood={traderMood}
             price={snapshot?.price ?? null}
           />
+          {generated && (
+            <div
+              role="note"
+              title={`Drafted from: “${generated.description}”`}
+              style={{
+                position: 'absolute',
+                top: '14px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                zIndex: 30,
+                padding: '6px 12px',
+                background: '#FBD0B4',
+                border: '2px solid var(--ink)',
+                borderRadius: '999px',
+                fontSize: '11px',
+                fontWeight: 700,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              Draft — generated, not yet checked by a fluent speaker
+            </div>
+          )}
           {!convo && (
             <button
               type="button"
@@ -366,7 +470,7 @@ export default function HearAfricaPage() {
                 cursor: 'pointer',
               }}
             >
-              ← Leave {world.place[0]}
+              ← Leave {generated ? 'this scene' : world.place[0]}
             </button>
           )}
         </div>
@@ -404,7 +508,7 @@ export default function HearAfricaPage() {
         introVisible={introVisible}
         isNpcHere={isNpcActive}
         traderName={activeSpec.traderName}
-        pitchNoun={world.pitchNoun}
+        pitchNoun={pitchNoun}
         isConvoOpen={!!convo}
       />
     </main>
