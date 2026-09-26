@@ -38,7 +38,7 @@ export interface JudgeTarget {
  * whole encounter. The phrase under test is sent as a TARGET turn immediately
  * before each attempt instead.
  */
-function buildInstruction(languageName: string): string {
+export function buildInstruction(languageName: string): string {
   return (
     `You are a patient ${languageName} pronunciation examiner listening to a beginner.\n\n` +
     `Before each attempt you are given a line beginning "TARGET:". The audio that follows is ` +
@@ -46,25 +46,39 @@ function buildInstruction(languageName: string): string {
     `earlier TARGET and every earlier attempt completely — each attempt is judged fresh, and how ` +
     `they did before must never soften or harden your verdict.\n\n` +
     `Listen to their audio and call score_attempt exactly once. Never reply with speech or text.\n\n` +
+    // Measured: a correct "Ẹ jọ̀ọ́ ma, báwo lẹ ṣe lé tòmátì yín?" passed 1 time in 6
+    // under the old wording, because the judge listened for "ma" as a separate
+    // word. It is not one in speech.
+    `LISTEN THE WAY A LOCAL LISTENS:\n` +
+    `- People run words together. Short words fuse with their neighbours: a one-syllable respect ` +
+    `word at the start of a phrase merges into the next word (in Yorùbá, "Ẹ káàárọ̀" sounds like one ` +
+    `word, "ẹkáàárọ̀"), and a short honorific attaches to the word before it ("jọ̀ọ́ ma" sounds like ` +
+    `"jọ̀ọ́ma"). A fused word is still said. Listen for its sound, not for a gap around it.\n` +
+    `- Ask yourself: would a local listener accept this as the TARGET line? If yes, it is correct, ` +
+    `even with a heavy accent, imperfect tones, hesitation, or a natural extra particle such as "o".\n\n` +
     `HOW TO JUDGE:\n` +
-    `- Accept a heavy foreign accent, imperfect tones, and hesitation. They are learning.\n` +
-    `- Accept it as correct when the right words are there, in the right order, recognisably.\n` +
-    `- Mark it incorrect if they said something different, left a word out, or were unintelligible.\n` +
+    `- Mark it incorrect if they said something different, clearly left a word out, or were unintelligible.\n` +
     `- Mark it incorrect if they said nothing, or only breathed or coughed.\n` +
-    `- If the TARGET lists mandatory words, a missing one means correct=false and ` +
-    `missed_respect_marker=true, however good the rest was.\n\n` +
+    `- MANDATORY WORDS: for each one, report in mandatory_words_heard whether you heard it anywhere, ` +
+    `fused or not. Set missed_respect_marker=true (and correct=false) ONLY when you are confident a ` +
+    `mandatory word is absent. If you are unsure, give the learner the benefit of the doubt: a false ` +
+    `accusation of rudeness is worse than a missed one.\n\n` +
     `Your note must be one short, warm sentence of English coaching addressed to the learner ` +
     `("Almost — the second syllable rises"). Never scold.`
   );
 }
 
 /** The per-attempt brief, restated right before the audio. */
-function buildTargetTurn(target: JudgeTarget): string {
+export function buildTargetTurn(target: JudgeTarget): string {
   const critical = target.criticalWords.length
-    ? ` MANDATORY WORDS: ${target.criticalWords.join(', ')} — these carry respect for an elder.`
+    ? ` MANDATORY WORDS: ${target.criticalWords.join(', ')} — these carry respect. They may be fused with neighbouring words.`
     : '';
   return `TARGET: "${target.native}" (meaning: ${target.en}).${critical} The next audio is their attempt at this line.`;
 }
+
+/** How many extra listens a failing attempt gets before the learner is told. */
+const MAX_RECHECKS = 2;
+const RECHECK_TIMEOUT_MS = 10000;
 
 export class PronunciationJudge {
   private session: Session | null = null;
@@ -78,6 +92,8 @@ export class PronunciationJudge {
   private alive = false;
   /** Audio chunks the socket refused. Non-zero means it did not hear you. */
   private sendFailures = 0;
+  /** The attempt under judgement, kept so a failing verdict can be re-checked. */
+  private attempt: { target: JudgeTarget; audio: string[] } | null = null;
 
   constructor(model?: string) {
     this.model = model || RECOMMENDED_LIVE_MODEL;
@@ -160,6 +176,11 @@ export class PronunciationJudge {
                     heard: {
                       type: Type.STRING,
                       description: 'What you actually heard them say.',
+                    },
+                    mandatory_words_heard: {
+                      type: Type.ARRAY,
+                      items: { type: Type.STRING },
+                      description: 'Each mandatory word you heard in the attempt, fused or not.',
                     },
                     note: {
                       type: Type.STRING,
@@ -253,12 +274,16 @@ export class PronunciationJudge {
       throw new Error('Microphone unavailable. Allow access, or skip this line.');
     }
     this.gotVerdict = false;
+    const attempt = { target, audio: [] as string[] };
+    this.attempt = attempt;
     this.recorder.setCallbacks((chunk) => {
       let binary = '';
       for (let i = 0; i < chunk.byteLength; i++) binary += String.fromCharCode(chunk[i]);
+      const data = btoa(binary);
+      attempt.audio.push(data);
       try {
         session.sendRealtimeInput({
-          audio: { data: btoa(binary), mimeType: 'audio/pcm;rate=16000' },
+          audio: { data, mimeType: 'audio/pcm;rate=16000' },
         });
       } catch {
         // Counted rather than ignored: if the socket is gone, every chunk fails
@@ -271,14 +296,78 @@ export class PronunciationJudge {
     if (preBuffer.length) {
       let binary = '';
       for (let i = 0; i < preBuffer.byteLength; i++) binary += String.fromCharCode(preBuffer[i]);
+      const data = btoa(binary);
+      // The pre-buffer comes first in time, so it leads the kept audio too.
+      attempt.audio.unshift(data);
       session.sendRealtimeInput({
-        audio: { data: btoa(binary), mimeType: 'audio/pcm;rate=16000' },
+        audio: { data, mimeType: 'audio/pcm;rate=16000' },
       });
     }
   }
 
-  /** Ends the attempt and waits for the model's verdict. */
+  /**
+   * Ends the attempt and returns the verdict. A failing verdict is checked
+   * again against the same audio before the learner is told: the judge is
+   * noisy on short, fused words, and a correct "Ẹ jọ̀ọ́ ma, …" passed about half
+   * the time on a single listen but 7 times in 8 with up to three. Real
+   * omissions failed every check in the same measurement, so they still fail.
+   * Missing respect is only reported when every check agrees.
+   */
   async judge(timeoutMs = 15000): Promise<Verdict> {
+    const first = await this.firstVerdict(timeoutMs);
+    if (first.correct || first.inconclusive) return first;
+
+    let last = first;
+    let everyCheckMissedRespect = first.missedRespect;
+    for (let check = 0; check < MAX_RECHECKS; check++) {
+      const again = await this.recheck(RECHECK_TIMEOUT_MS);
+      if (!again || again.inconclusive) break;
+      if (again.correct) return again;
+      everyCheckMissedRespect = everyCheckMissedRespect && again.missedRespect;
+      last = again;
+    }
+    return { ...last, missedRespect: everyCheckMissedRespect };
+  }
+
+  /** Sends the kept audio again for a second listen; null if it cannot. */
+  private async recheck(timeoutMs: number): Promise<Verdict | null> {
+    const session = this.session;
+    const attempt = this.attempt;
+    if (!session || !this.alive || !attempt || !attempt.audio.length) return null;
+    this.gotVerdict = false;
+    const verdict = new Promise<Verdict>((resolve) => {
+      this.pending = resolve;
+    });
+    try {
+      session.sendClientContent({
+        turns: [{ role: 'user', parts: [{ text: buildTargetTurn(attempt.target) }] }],
+        turnComplete: false,
+      });
+      session.sendRealtimeInput({ activityStart: {} });
+      for (const data of attempt.audio) {
+        session.sendRealtimeInput({ audio: { data, mimeType: 'audio/pcm;rate=16000' } });
+      }
+      session.sendRealtimeInput({ activityEnd: {} });
+    } catch {
+      this.pending = null;
+      return null;
+    }
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    try {
+      return await Promise.race([
+        verdict,
+        new Promise<null>((resolve) => {
+          timer = setTimeout(() => resolve(null), timeoutMs);
+        }),
+      ]);
+    } finally {
+      clearTimeout(timer);
+      this.pending = null;
+    }
+  }
+
+  /** Ends the attempt and waits for the model's first verdict. */
+  private async firstVerdict(timeoutMs: number): Promise<Verdict> {
     // Keep sending until the trailing syllables are captured.
     await this.recorder.stop(300);
     const session = this.session;
@@ -355,6 +444,7 @@ export class PronunciationJudge {
     this.gotVerdict = false;
     this.alive = false;
     this.sendFailures = 0;
+    this.attempt = null;
     this.currentKey = '';
     this.recorder.destroy();
     if (this.session) {
