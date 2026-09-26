@@ -7,16 +7,13 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
-import {
-  BuiltScene,
-  TraderMood,
-  applySunElevation,
-  buildBaloganScene,
-  clearSceneCaches,
-  PALETTE,
-} from './balogun-scene';
+import { buildBaloganScene } from './balogun-scene';
 import { buildKejetiaScene, clearKejetiaCaches } from './kejetia-scene';
-import { buildNairobiScene, clearNairobiCaches } from './nairobi-scene';
+import { buildNairobiScene } from './nairobi-scene';
+import { clearKitCaches } from './kit/core';
+import { applySunElevation } from './kit/life';
+import { PALETTE } from './kit/palettes';
+import type { BuiltScene, TraderMood } from './kit/types';
 import { animateWalk, makePerson } from './people';
 
 interface MarketScene3DProps {
@@ -432,9 +429,8 @@ export const MarketScene3D: React.FC<MarketScene3DProps> = ({
       // The caches hand out shared geometry and materials, and the traversal
       // above has just disposed them, so they must not survive into the next
       // build (React mounts this twice in development).
-      clearSceneCaches();
+      clearKitCaches();
       clearKejetiaCaches();
-      clearNairobiCaches();
       renderer.dispose();
       if (renderer.domElement.parentNode === host) host.removeChild(renderer.domElement);
     };

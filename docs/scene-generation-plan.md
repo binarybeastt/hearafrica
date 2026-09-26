@@ -84,7 +84,7 @@ lesson in the lower third, badged **Draft — not yet reviewed by a fluent speak
 
 ## Status
 
-- [ ] 1. Scene kit
+- [x] 1. Scene kit
 - [ ] 2. Composer and templates
 - [ ] 3. Generation
 - [ ] 4. UI

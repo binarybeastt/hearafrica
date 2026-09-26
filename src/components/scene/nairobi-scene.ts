@@ -17,7 +17,7 @@
 
 import * as THREE from 'three';
 import { rng } from '@/data/lagos-data';
-import { animateWalk, makePerson, Person, randomPerson } from './people';
+import { makePerson, Person, randomPerson } from './people';
 import {
   makeMatatu,
   makeVehicle,
@@ -25,181 +25,14 @@ import {
   Vehicle,
   VehicleKind,
 } from './vehicles';
-import { BuiltScene, TraderMood } from './balogun-scene';
+import { mat } from './kit/core';
+import { NAIROBI_PALETTE } from './kit/palettes';
+import { cbdTower, jacaranda, shelter } from './kit/props';
+import { makeApproachRing, makePin } from './kit/markers';
+import { addDaylight, headOf, makePostureAnimator, Posture, stepCrowd, Walker } from './kit/life';
+import type { BuiltScene, TraderMood } from './kit/types';
 
-export const NAIROBI_PALETTE = {
-  paper: '#EFEDE4',
-  ink: '#16181C',
-  ground: '#9FA3A0',
-  tarmac: '#53565A',
-  bay: '#E8E4D4',
-  kerb: '#C9CCC6',
-  concrete: '#BFC2BA',
-  concreteDark: '#9DA29A',
-  glassTower: '#7FA6B8',
-  red: '#E8412F',
-  green: '#00A859',
-  blue: '#2FA8E0',
-  gold: '#F5C400',
-  jacaranda: '#8E7BC8',
-  jacarandaDeep: '#6E5BA8',
-  leaf: '#3F6B3A',
-  bark: '#5E4A38',
-  awning: '#1E5A48',
-};
-
-/** Reused by traderHead() so the speech bubble does not allocate per frame. */
-const headScratch = new THREE.Vector3();
-
-const materialCache = new Map<string, THREE.MeshLambertMaterial>();
-function mat(color: string): THREE.MeshLambertMaterial {
-  let material = materialCache.get(color);
-  if (!material) {
-    material = new THREE.MeshLambertMaterial({ color });
-    materialCache.set(color, material);
-  }
-  return material;
-}
-
-const geometryCache = new Map<string, THREE.BufferGeometry>();
-function geo<T extends THREE.BufferGeometry>(key: string, build: () => T): T {
-  let geometry = geometryCache.get(key);
-  if (!geometry) {
-    geometry = build();
-    geometryCache.set(key, geometry);
-  }
-  return geometry as T;
-}
-
-export function clearNairobiCaches() {
-  geometryCache.clear();
-  materialCache.clear();
-}
-
-/** A CBD block: concrete frame, banded glazing, a flat roof with plant. */
-function cbdTower(rand: () => number): THREE.Group {
-  const group = new THREE.Group();
-  const w = 9 + rand() * 7;
-  const d = 8 + rand() * 6;
-  const floors = 4 + ((rand() * 7) | 0);
-  const floorHeight = 3.2;
-  const h = floors * floorHeight;
-
-  const shell = new THREE.Mesh(
-    new THREE.BoxGeometry(w, h, d),
-    mat(rand() < 0.4 ? NAIROBI_PALETTE.concreteDark : NAIROBI_PALETTE.concrete)
-  );
-  shell.position.y = h / 2;
-  shell.castShadow = true;
-  shell.receiveShadow = true;
-  group.add(shell);
-
-  // Banded glazing: one strip per floor, front and back.
-  for (let f = 0; f < floors; f++) {
-    for (const side of [1, -1]) {
-      const band = new THREE.Mesh(
-        new THREE.BoxGeometry(w - 1.1, 1.5, 0.06),
-        mat(NAIROBI_PALETTE.glassTower)
-      );
-      band.position.set(0, f * floorHeight + 2, (side * d) / 2 + side * 0.03);
-      group.add(band);
-    }
-    for (const side of [1, -1]) {
-      const band = new THREE.Mesh(
-        new THREE.BoxGeometry(0.06, 1.5, d - 1.1),
-        mat(NAIROBI_PALETTE.glassTower)
-      );
-      band.position.set((side * w) / 2 + side * 0.03, f * floorHeight + 2, 0);
-      group.add(band);
-    }
-  }
-
-  const parapet = new THREE.Mesh(
-    new THREE.BoxGeometry(w + 0.3, 0.5, d + 0.3),
-    mat(NAIROBI_PALETTE.concreteDark)
-  );
-  parapet.position.y = h + 0.25;
-  group.add(parapet);
-
-  const plant = new THREE.Mesh(
-    new THREE.BoxGeometry(2.2, 1.2, 2.2),
-    mat(NAIROBI_PALETTE.concreteDark)
-  );
-  plant.position.set((rand() - 0.5) * (w - 4), h + 1.1, (rand() - 0.5) * (d - 4));
-  group.add(plant);
-
-  return group;
-}
-
-/** A jacaranda: Nairobi's street tree, in flower. */
-function jacaranda(rand: () => number): THREE.Group {
-  const group = new THREE.Group();
-  const height = 4 + rand() * 2.2;
-  const trunk = new THREE.Mesh(
-    geo('jacTrunk', () => new THREE.CylinderGeometry(0.26, 0.42, 1, 7)),
-    mat(NAIROBI_PALETTE.bark)
-  );
-  trunk.scale.y = height;
-  trunk.position.y = height / 2;
-  trunk.castShadow = true;
-  group.add(trunk);
-
-  for (let b = 0; b < 4; b++) {
-    const blob = new THREE.Mesh(
-      new THREE.SphereGeometry(1.6 + rand() * 0.9, 7, 5),
-      mat(b % 2 ? NAIROBI_PALETTE.jacaranda : NAIROBI_PALETTE.jacarandaDeep)
-    );
-    blob.position.set(
-      (rand() - 0.5) * 2.6,
-      height + 0.6 + rand() * 1.1,
-      (rand() - 0.5) * 2.6
-    );
-    blob.scale.y = 0.7;
-    blob.castShadow = true;
-    group.add(blob);
-  }
-  return group;
-}
-
-/** The stage shelter: a steel canopy over a concrete bench. */
-function shelter(rand: () => number): THREE.Group {
-  const group = new THREE.Group();
-  const w = 9;
-
-  const roof = new THREE.Mesh(
-    new THREE.BoxGeometry(w, 0.18, 3.4),
-    mat(NAIROBI_PALETTE.awning)
-  );
-  roof.position.y = 3;
-  roof.castShadow = true;
-  group.add(roof);
-
-  for (const x of [-w / 2 + 0.5, 0, w / 2 - 0.5]) {
-    const post = new THREE.Mesh(
-      geo('shelterPost', () => new THREE.CylinderGeometry(0.1, 0.1, 3, 6)),
-      mat(NAIROBI_PALETTE.ink)
-    );
-    post.position.set(x, 1.5, -1.5);
-    group.add(post);
-  }
-
-  const bench = new THREE.Mesh(
-    new THREE.BoxGeometry(w - 1.4, 0.35, 0.7),
-    mat(NAIROBI_PALETTE.concrete)
-  );
-  bench.position.set(0, 0.5, -1.4);
-  bench.castShadow = true;
-  group.add(bench);
-
-  for (let i = 0; i < 2; i++) {
-    const sitter = randomPerson(rand);
-    sitter.group.position.set(-2 + i * 4, 0.55, -1.3);
-    sitter.limbs.leftLeg.rotation.x = -1.2;
-    sitter.limbs.rightLeg.rotation.x = -1.2;
-    group.add(sitter.group);
-  }
-  return group;
-}
+export { NAIROBI_PALETTE } from './kit/palettes';
 
 /**
  * Kevo's matatu, nosed into its bay, with him standing at the sliding door.
@@ -269,48 +102,6 @@ function makeKevoStand(): {
   group.add(trader.group);
 
   return { group, trader, setPrice: draw };
-}
-
-function makePin(): THREE.Group {
-  const group = new THREE.Group();
-  const pinMat = new THREE.MeshBasicMaterial({
-    color: NAIROBI_PALETTE.red,
-    depthTest: false,
-  });
-  const headMat = new THREE.MeshBasicMaterial({
-    color: NAIROBI_PALETTE.green,
-    depthTest: false,
-  });
-  const inkMat = new THREE.MeshBasicMaterial({
-    color: NAIROBI_PALETTE.ink,
-    depthTest: false,
-  });
-
-  const spike = new THREE.Mesh(new THREE.ConeGeometry(0.62, 1.7, 10), pinMat);
-  spike.position.y = 0.85;
-  spike.rotation.x = Math.PI;
-  spike.renderOrder = 999;
-  group.add(spike);
-
-  const head = new THREE.Mesh(new THREE.SphereGeometry(0.85, 14, 12), pinMat);
-  head.position.y = 2.1;
-  head.renderOrder = 999;
-  group.add(head);
-
-  const shield = new THREE.Mesh(new THREE.SphereGeometry(0.4, 12, 10), headMat);
-  shield.position.set(0, 2.1, 0.55);
-  shield.renderOrder = 1000;
-  group.add(shield);
-
-  const ring = new THREE.Mesh(new THREE.TorusGeometry(0.95, 0.07, 6, 18), inkMat);
-  ring.position.y = 2.1;
-  ring.renderOrder = 1000;
-  group.add(ring);
-
-  group.traverse((o) => {
-    o.userData.pin = true;
-  });
-  return group;
 }
 
 const KEVO = { x: -4, y: 6 };
@@ -438,42 +229,19 @@ export function buildNairobiScene(): BuiltScene {
   }
 
   // --- Pin and approach ring ------------------------------------------------
-  const pin = makePin();
+  const pin = makePin({ body: NAIROBI_PALETTE.red, face: NAIROBI_PALETTE.green, ink: NAIROBI_PALETTE.ink });
   pin.scale.setScalar(0.72);
   pin.position.set(KEVO.x + 1.5, 3.4, KEVO.y + 2.1);
   scene.add(pin);
 
   const approachPoint = new THREE.Vector3(KEVO.x + 1.6, 0, KEVO.y + 5);
-  const marker = new THREE.Mesh(
-    new THREE.RingGeometry(1.5, 1.9, 22),
-    new THREE.MeshBasicMaterial({
-      color: NAIROBI_PALETTE.gold,
-      transparent: true,
-      opacity: 0.78,
-      side: THREE.DoubleSide,
-    })
-  );
-  marker.rotation.x = -Math.PI / 2;
-  marker.position.set(approachPoint.x, 0.06, approachPoint.z);
-  marker.userData.pin = true;
-  scene.add(marker);
+  scene.add(makeApproachRing(approachPoint, NAIROBI_PALETTE.gold, 0.78));
 
   // Keep the crowd out of the spot the learner stands in, so nobody wanders
   // into the two-shot and stands between the camera and Kevo mid-lesson.
   blockers.push({ x: approachPoint.x, z: approachPoint.z, r: 2.2 });
 
   // --- Commuters ------------------------------------------------------------
-  interface Walker {
-    person: Person;
-    angle: number;
-    radiusX: number;
-    radiusZ: number;
-    cx: number;
-    cz: number;
-    speed: number;
-    lastX: number;
-    lastZ: number;
-  }
   const walkers: Walker[] = [];
   for (let i = 0; i < 26; i++) {
     // No head loads here: basins and trays are a market image, and this is a
@@ -528,25 +296,18 @@ export function buildNairobiScene(): BuiltScene {
 
   // --- Light ----------------------------------------------------------------
   // Nairobi sits at altitude on the equator: harder, cooler light than Lagos.
-  const ambient = new THREE.HemisphereLight(0xf2f6ff, 0x8f9488, 1.0);
-  scene.add(ambient);
-
-  const sun = new THREE.DirectionalLight(0xfff6e4, 1.6);
-  sun.position.set(40, 66, 22);
-  sun.castShadow = true;
-  sun.shadow.mapSize.set(1024, 1024);
-  sun.shadow.camera.left = -60;
-  sun.shadow.camera.right = 60;
-  sun.shadow.camera.top = 60;
-  sun.shadow.camera.bottom = -60;
-  sun.shadow.camera.far = 240;
-  sun.shadow.bias = -0.0007;
-  scene.add(sun);
-  scene.add(sun.target);
+  const { ambient, sun } = addDaylight(scene, {
+    sky: 0xf2f6ff,
+    ground: 0x8f9488,
+    ambientIntensity: 1.0,
+    sunColour: 0xfff6e4,
+    sunIntensity: 1.6,
+    sunPosition: [40, 66, 22],
+  });
 
   // Kevo is a conductor, not a seated trader: his warmth shows in how much of
   // him is turned toward you, and folded arms mean the fare talk stalled.
-  const POSTURES: Record<TraderMood, { arms: number; lean: number; tilt: number; spread: number }> = {
+  const POSTURES: Record<TraderMood, Posture> = {
     idle: { arms: -0.15, lean: 0.04, tilt: 0, spread: 0.1 },
     speaking: { arms: -0.5, lean: 0.1, tilt: 0.05, spread: 0.3 },
     listening: { arms: -0.1, lean: 0.2, tilt: 0.16, spread: 0.05 },
@@ -554,75 +315,14 @@ export function buildNairobiScene(): BuiltScene {
     pleased: { arms: -0.6, lean: 0.06, tilt: -0.05, spread: 0.28 },
     cool: { arms: 1.3, lean: -0.14, tilt: -0.03, spread: -0.32 },
   };
-  let mood: TraderMood = 'idle';
+  // He shifts his weight the way someone standing in a doorway does.
+  const posture = makePostureAnimator(trader, POSTURES, { rate: 1.9, depth: 0.02 });
 
   const update = (dt: number, elapsed: number) => {
     pin.position.y = 3.4 + Math.sin(elapsed * 2) * 0.22;
     pin.rotation.y = elapsed * 0.9;
-
-    const target = POSTURES[mood];
-    const k = Math.min(1, dt * 4.5);
-    const limbs = trader.limbs;
-    limbs.leftArm.rotation.x += (target.arms - limbs.leftArm.rotation.x) * k;
-    limbs.rightArm.rotation.x += (target.arms - limbs.rightArm.rotation.x) * k;
-    limbs.leftArm.rotation.z += (-target.spread - limbs.leftArm.rotation.z) * k;
-    limbs.rightArm.rotation.z += (target.spread - limbs.rightArm.rotation.z) * k;
-    limbs.torso.rotation.x += (target.lean - limbs.torso.rotation.x) * k;
-    limbs.head.rotation.z += (target.tilt - limbs.head.rotation.z) * k;
-    // He shifts his weight the way someone standing in a doorway does.
-    limbs.torso.position.y = Math.sin(elapsed * 1.9) * 0.02;
-    if (mood === 'speaking') limbs.head.rotation.x = Math.sin(elapsed * 9) * 0.07;
-    else limbs.head.rotation.x *= 0.9;
-
-    for (const w of walkers) {
-      const prevX = w.person.group.position.x;
-      const prevZ = w.person.group.position.z;
-      w.angle += w.speed * dt * 0.25;
-      let x = w.cx + Math.cos(w.angle) * w.radiusX;
-      let z = w.cz + Math.sin(w.angle) * w.radiusZ;
-      for (const b of blockers) {
-        const dx = x - b.x;
-        const dz = z - b.z;
-        const distance = Math.hypot(dx, dz);
-        const minimum = b.r + 0.6;
-        if (distance < minimum && distance > 0.0001) {
-          x = b.x + (dx / distance) * minimum;
-          z = b.z + (dz / distance) * minimum;
-        }
-      }
-      w.person.group.position.set(x, w.person.group.position.y, z);
-      w.lastX = prevX;
-      w.lastZ = prevZ;
-    }
-
-    const SEPARATION = 0.95;
-    for (let i = 0; i < walkers.length; i++) {
-      const a = walkers[i].person.group.position;
-      for (let j = i + 1; j < walkers.length; j++) {
-        const b = walkers[j].person.group.position;
-        const dx = b.x - a.x;
-        const dz = b.z - a.z;
-        const distance = Math.hypot(dx, dz);
-        if (distance >= SEPARATION || distance < 0.0001) continue;
-        const push = (SEPARATION - distance) / 2;
-        const nx = dx / distance;
-        const nz = dz / distance;
-        a.x -= nx * push;
-        a.z -= nz * push;
-        b.x += nx * push;
-        b.z += nz * push;
-      }
-    }
-
-    for (const w of walkers) {
-      const dx = w.person.group.position.x - w.lastX;
-      const dz = w.person.group.position.z - w.lastZ;
-      const moved = Math.hypot(dx, dz);
-      if (moved > 0.001) {
-        w.person.group.rotation.y = Math.atan2(dx, dz);
-      }
-      animateWalk(w.person, elapsed, moved / Math.max(dt, 0.001) / 3);
-    }
+    posture.update(dt, elapsed);
+    stepCrowd(walkers, blockers, dt, elapsed);
     updateVehicles(vehicles, dt);
   };
 
@@ -636,14 +336,8 @@ export function buildNairobiScene(): BuiltScene {
     pin,
     approachPoint,
     setPrice,
-    setTraderMood: (next: TraderMood) => {
-      mood = next;
-    },
-    traderHead: (out = headScratch) => {
-      trader.limbs.head.getWorldPosition(out);
-      out.y += 0.55;
-      return out;
-    },
+    setTraderMood: posture.setMood,
+    traderHead: headOf(trader),
     update,
   };
 }

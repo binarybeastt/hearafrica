@@ -1,0 +1,76 @@
+// Each world's palette. They share the illustrated map's paper and ink, and
+// differ where the place does: Lagos zinc and laterite, Kumasi's kente colours,
+// Nairobi's concrete, glass and jacaranda.
+
+/** Lagos. */
+export const PALETTE = {
+  paper: '#F7EFE2',
+  ink: '#1D1510',
+  ground: '#C9B291',
+  lane: '#D9C7A4',
+  pink: '#F2A1CB',
+  pink2: '#E0609F',
+  marigold: '#F6B82C',
+  orange: '#F28A2E',
+  green: '#11663F',
+  olive: '#8C8A2B',
+  brown: '#9A5A38',
+  brown2: '#B8683A',
+  timber: '#8A5A36',
+  tomato: '#D44A28',
+  pepper: '#B3231B',
+  plantain: '#C9C22B',
+  zinc: '#9BA3A6',
+  zincRust: '#8A5B43',
+  skin: '#5A3A26',
+  asphalt: '#4B4A46',
+  asphaltLine: '#D9CFA8',
+  leaf: '#2F6B34',
+  leafDark: '#24512A',
+  palm: '#3C7A3A',
+  bark: '#6B4A2F',
+};
+
+/** Kumasi. */
+export const GHANA_PALETTE = {
+  paper: '#F7EFE2',
+  ink: '#1D1510',
+  ground: '#B8A183',
+  lane: '#CDBA98',
+  gold: '#E8B10A',
+  green: '#118A4E',
+  red: '#C8102E',
+  black: '#17110C',
+  timber: '#8A5A36',
+  zinc: '#9BA3A6',
+  rust: '#8A5B43',
+  rustDeep: '#6E4531',
+  asphalt: '#4B4A46',
+  asphaltLine: '#D9CFA8',
+  leaf: '#2F6B34',
+  leafDark: '#24512A',
+  bark: '#6B4A2F',
+  cocoa: '#7A4A22',
+};
+
+/** Nairobi. */
+export const NAIROBI_PALETTE = {
+  paper: '#EFEDE4',
+  ink: '#16181C',
+  ground: '#9FA3A0',
+  tarmac: '#53565A',
+  bay: '#E8E4D4',
+  kerb: '#C9CCC6',
+  concrete: '#BFC2BA',
+  concreteDark: '#9DA29A',
+  glassTower: '#7FA6B8',
+  red: '#E8412F',
+  green: '#00A859',
+  blue: '#2FA8E0',
+  gold: '#F5C400',
+  jacaranda: '#8E7BC8',
+  jacarandaDeep: '#6E5BA8',
+  leaf: '#3F6B3A',
+  bark: '#5E4A38',
+  awning: '#1E5A48',
+};

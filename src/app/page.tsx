@@ -9,7 +9,7 @@ import { HUDOverlays } from '@/components/HUDOverlays';
 import { MarketScene3D } from '@/components/scene/MarketScene3D';
 import { EncounterBar } from '@/components/EncounterBar';
 import { EncounterSnapshot } from '@/components/phases/GuidedEncounter';
-import { TraderMood } from '@/components/scene/balogun-scene';
+import type { TraderMood } from '@/components/scene/kit/types';
 import { getEncounter } from '@/data/encounters';
 import { ALL_SCENARIOS } from '@/data/scenario-specs';
 import { LanguageSelector } from '@/components/LanguageSelector';

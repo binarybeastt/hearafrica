@@ -15,69 +15,33 @@
 
 import * as THREE from 'three';
 import { rng } from '@/data/lagos-data';
-import { animateWalk, makePerson, Person, randomPerson } from './people';
+import { makePerson, Person, randomPerson } from './people';
+import { makeVehicle, updateVehicles, Vehicle, VehicleKind } from './vehicles';
+import { geo, mat } from './kit/core';
+import { GHANA_PALETTE } from './kit/palettes';
+import { kiosk, laySealedRoad } from './kit/props';
+import { makeApproachRing, makePin } from './kit/markers';
 import {
-  clearVehicleCaches,
-  makeVehicle,
-  updateVehicles,
-  Vehicle,
-  VehicleKind,
-} from './vehicles';
-import { BuiltScene, TraderMood } from './balogun-scene';
+  addDaylight,
+  headOf,
+  makePostureAnimator,
+  stepCrowd,
+  TRADER_POSTURES,
+  Walker,
+} from './kit/life';
+import type { BuiltScene } from './kit/types';
 
-export const GHANA_PALETTE = {
-  paper: '#F7EFE2',
-  ink: '#1D1510',
-  ground: '#B8A183',
-  lane: '#CDBA98',
-  gold: '#E8B10A',
-  green: '#118A4E',
-  red: '#C8102E',
-  black: '#17110C',
-  timber: '#8A5A36',
-  zinc: '#9BA3A6',
-  rust: '#8A5B43',
-  rustDeep: '#6E4531',
-  asphalt: '#4B4A46',
-  asphaltLine: '#D9CFA8',
-  leaf: '#2F6B34',
-  leafDark: '#24512A',
-  bark: '#6B4A2F',
-  cocoa: '#7A4A22',
-};
+export { GHANA_PALETTE } from './kit/palettes';
 
-/** Reused by traderHead() so the speech bubble does not allocate per frame. */
-const headScratch = new THREE.Vector3();
 
-const materialCache = new Map<string, THREE.MeshLambertMaterial>();
-function mat(color: string): THREE.MeshLambertMaterial {
-  let material = materialCache.get(color);
-  if (!material) {
-    material = new THREE.MeshLambertMaterial({ color });
-    materialCache.set(color, material);
-  }
-  return material;
-}
-
-const geometryCache = new Map<string, THREE.BufferGeometry>();
-function geo<T extends THREE.BufferGeometry>(key: string, build: () => T): T {
-  let geometry = geometryCache.get(key);
-  if (!geometry) {
-    geometry = build();
-    geometryCache.set(key, geometry);
-  }
-  return geometry as T;
-}
 
 const textureCache = new Map<string, THREE.CanvasTexture>();
 
+/** Kejetia's own textures; the shared caches are cleared by clearKitCaches. */
 export function clearKejetiaCaches() {
-  geometryCache.clear();
-  materialCache.clear();
   textureCache.clear();
   kenteMaterials.clear();
   adinkraMaterial = null;
-  clearVehicleCaches();
 }
 
 /**
@@ -195,40 +159,11 @@ function adinkraBoard(): THREE.Mesh {
     adinkraMaterial = material;
   }
   return new THREE.Mesh(
-    geo('adinkraBoard', () => new THREE.PlaneGeometry(1.5, 0.75)),
+    geo('adinkra:board', () => new THREE.PlaneGeometry(1.5, 0.75)),
     material
   );
 }
 
-/** Corrugated zinc, rustier and lower than Lagos — Kejetia's signature. */
-function zincRoof(width: number, depth: number, rust: number): THREE.Group {
-  const group = new THREE.Group();
-  const colour =
-    rust > 0.66 ? GHANA_PALETTE.rustDeep : rust > 0.33 ? GHANA_PALETTE.rust : GHANA_PALETTE.zinc;
-
-  const slab = new THREE.Mesh(
-    geo(`roof${Math.round(width)}x${Math.round(depth)}`, () =>
-      new THREE.BoxGeometry(width, 0.1, depth)
-    ),
-    mat(colour)
-  );
-  slab.castShadow = true;
-  slab.receiveShadow = true;
-  group.add(slab);
-
-  const ribs = 2;
-  for (let i = 0; i < ribs; i++) {
-    const rib = new THREE.Mesh(
-      geo('rib', () => new THREE.CylinderGeometry(0.05, 0.05, 1, 5)),
-      mat(rust > 0.5 ? '#9A6A4E' : '#AEB6B9')
-    );
-    rib.rotation.x = Math.PI / 2;
-    rib.scale.z = depth;
-    rib.position.set(-width / 2 + (i + 0.5) * (width / ribs), 0.06, 0);
-    group.add(rib);
-  }
-  return group;
-}
 
 /** A cloth stall: kente canopy, a rail of hanging strips, folded bolts. */
 function kenteStall(rand: () => number, variant: number): THREE.Group {
@@ -237,7 +172,7 @@ function kenteStall(rand: () => number, variant: number): THREE.Group {
   // Two posts, not four: the back pair is never visible behind the cloth.
   for (const [x, z] of [[-1.6, 1.1], [1.6, 1.1]]) {
     const post = new THREE.Mesh(
-      geo('post', () => new THREE.CylinderGeometry(0.07, 0.07, 2.9, 6)),
+      geo('kente:post', () => new THREE.CylinderGeometry(0.07, 0.07, 2.9, 6)),
       mat(GHANA_PALETTE.timber)
     );
     post.position.set(x, 1.45, z);
@@ -245,7 +180,7 @@ function kenteStall(rand: () => number, variant: number): THREE.Group {
   }
 
   const canopy = new THREE.Mesh(
-    geo('canopy', () => new THREE.BoxGeometry(3.7, 0.12, 2.6)),
+    geo('kente:canopy', () => new THREE.BoxGeometry(3.7, 0.12, 2.6)),
     kenteMaterial(variant, 2)
   );
   canopy.position.y = 2.95;
@@ -253,7 +188,7 @@ function kenteStall(rand: () => number, variant: number): THREE.Group {
   group.add(canopy);
 
   const table = new THREE.Mesh(
-    geo('table', () => new THREE.BoxGeometry(3.2, 0.12, 1.3)),
+    geo('kente:table', () => new THREE.BoxGeometry(3.2, 0.12, 1.3)),
     mat(GHANA_PALETTE.timber)
   );
   table.position.set(0, 0.85, 0.7);
@@ -261,7 +196,7 @@ function kenteStall(rand: () => number, variant: number): THREE.Group {
   group.add(table);
 
   const trestle = new THREE.Mesh(
-    geo('trestle', () => new THREE.BoxGeometry(3, 0.8, 1.1)),
+    geo('kente:trestle', () => new THREE.BoxGeometry(3, 0.8, 1.1)),
     mat('#6F492C')
   );
   trestle.position.set(0, 0.42, 0.7);
@@ -270,7 +205,7 @@ function kenteStall(rand: () => number, variant: number): THREE.Group {
   // Folded bolts of cloth on the table.
   for (let i = 0; i < 2; i++) {
     const bolt = new THREE.Mesh(
-      geo('bolt', () => new THREE.BoxGeometry(0.85, 0.22, 0.6)),
+      geo('kente:bolt', () => new THREE.BoxGeometry(0.85, 0.22, 0.6)),
       kenteMaterial((variant + i) % 3, 1)
     );
     bolt.position.set((i - 0.5) * 1.3, 1.02 + (rand() < 0.4 ? 0.22 : 0), 0.7);
@@ -280,7 +215,7 @@ function kenteStall(rand: () => number, variant: number): THREE.Group {
 
   // Strips hanging from a rail at the back — how cloth is actually displayed.
   const rail = new THREE.Mesh(
-    geo('rail', () => new THREE.BoxGeometry(3.4, 0.07, 0.07)),
+    geo('kente:rail', () => new THREE.BoxGeometry(3.4, 0.07, 0.07)),
     mat(GHANA_PALETTE.timber)
   );
   rail.position.set(0, 2.55, -1.1);
@@ -289,7 +224,7 @@ function kenteStall(rand: () => number, variant: number): THREE.Group {
   // Two wide strips read the same as four narrow ones at any real distance.
   for (let i = 0; i < 2; i++) {
     const strip = new THREE.Mesh(
-      geo('strip', () => new THREE.PlaneGeometry(1.5, 1.85)),
+      geo('kente:strip', () => new THREE.PlaneGeometry(1.5, 1.85)),
       kenteMaterial((variant + i) % 3, 1)
     );
     strip.position.set((i - 0.5) * 1.6, 1.6, -1.08);
@@ -299,40 +234,6 @@ function kenteStall(rand: () => number, variant: number): THREE.Group {
   return group;
 }
 
-/** A lock-up kiosk with a low rusted roof and a stamped board. */
-function kiosk(w: number, d: number, rand: () => number): THREE.Group {
-  const group = new THREE.Group();
-  const h = 2.7;
-  const shell = ['#C9B79A', '#A8BFA0', '#C2A08A', '#9FB3C4', '#D0BE96'][(rand() * 5) | 0];
-
-  const walls = new THREE.Mesh(
-    geo(`kiosk${Math.round(w)}x${Math.round(d)}`, () => new THREE.BoxGeometry(w, h, d)),
-    mat(shell)
-  );
-  walls.position.y = h / 2;
-  walls.castShadow = true;
-  walls.receiveShadow = true;
-  group.add(walls);
-
-  const roof = zincRoof(w * 1.15, d * 1.15, rand());
-  roof.position.y = h + 0.06;
-  group.add(roof);
-
-  const front = new THREE.Mesh(
-    geo('kioskFront', () => new THREE.BoxGeometry(1, 1.8, 0.08)),
-    mat('#2A1D14')
-  );
-  front.scale.x = (w * 0.6) / 1;
-  front.position.set(0, 0.9, d / 2 + 0.03);
-  group.add(front);
-
-  if (rand() < 0.45) {
-    const board = adinkraBoard();
-    board.position.set(0, 2.25, d / 2 + 0.05);
-    group.add(board);
-  }
-  return group;
-}
 
 /** Auntie Akosua's stall, and Auntie Akosua. */
 function makeAkosuaStall(): {
@@ -428,39 +329,6 @@ function makeAkosuaStall(): {
   return { group, trader, setPrice: draw };
 }
 
-function makePin(): THREE.Group {
-  const group = new THREE.Group();
-  const pinMat = new THREE.MeshBasicMaterial({ color: GHANA_PALETTE.red, depthTest: false });
-  const headMat = new THREE.MeshBasicMaterial({ color: GHANA_PALETTE.gold, depthTest: false });
-  const inkMat = new THREE.MeshBasicMaterial({ color: GHANA_PALETTE.ink, depthTest: false });
-
-  const spike = new THREE.Mesh(new THREE.ConeGeometry(0.62, 1.7, 10), pinMat);
-  spike.position.y = 0.85;
-  spike.rotation.x = Math.PI;
-  spike.renderOrder = 999;
-  group.add(spike);
-
-  const head = new THREE.Mesh(new THREE.SphereGeometry(0.85, 14, 12), pinMat);
-  head.position.y = 2.1;
-  head.renderOrder = 999;
-  group.add(head);
-
-  // A black star, for Ghana.
-  const star = new THREE.Mesh(new THREE.SphereGeometry(0.4, 12, 10), headMat);
-  star.position.set(0, 2.1, 0.55);
-  star.renderOrder = 1000;
-  group.add(star);
-
-  const ring = new THREE.Mesh(new THREE.TorusGeometry(0.95, 0.07, 6, 18), inkMat);
-  ring.position.y = 2.1;
-  ring.renderOrder = 1000;
-  group.add(ring);
-
-  group.traverse((o) => {
-    o.userData.pin = true;
-  });
-  return group;
-}
 
 const AKOSUA = { x: -18, y: 4 };
 /** Kejetia is denser than Balogun: tighter rows, narrower lanes. */
@@ -500,33 +368,9 @@ export function buildKejetiaScene(): BuiltScene {
   const roadLanesZ = [LANES_X[0], LANES_X[LANES_X.length - 1]];
   const roadLanesX = [LANES_Z[0], LANES_Z[LANES_Z.length - 1]];
 
-  const laySealedRoad = (along: 'x' | 'z', at: number, length: number) => {
-    const width = 11;
-    const road = new THREE.Mesh(
-      along === 'z'
-        ? new THREE.PlaneGeometry(width, length)
-        : new THREE.PlaneGeometry(length, width),
-      mat(GHANA_PALETTE.asphalt)
-    );
-    road.rotation.x = -Math.PI / 2;
-    road.position.set(along === 'z' ? at : 0, 0.03, along === 'z' ? 0 : at);
-    road.receiveShadow = true;
-    scene.add(road);
-
-    const dashes = Math.floor(length / 9);
-    for (let i = 0; i < dashes; i++) {
-      const offset = -length / 2 + 4.5 + i * 9;
-      const dash = new THREE.Mesh(
-        along === 'z' ? new THREE.PlaneGeometry(0.28, 3.6) : new THREE.PlaneGeometry(3.6, 0.28),
-        mat(GHANA_PALETTE.asphaltLine)
-      );
-      dash.rotation.x = -Math.PI / 2;
-      dash.position.set(along === 'z' ? at : offset, 0.035, along === 'z' ? offset : at);
-      scene.add(dash);
-    }
-  };
-  for (const at of roadLanesZ) laySealedRoad('z', at, 220);
-  for (const at of roadLanesX) laySealedRoad('x', at, 240);
+  // Kejetia's roads have no kerbs.
+  for (const at of roadLanesZ) laySealedRoad(scene, 'z', at, 220, false);
+  for (const at of roadLanesX) laySealedRoad(scene, 'x', at, 240, false);
 
   // --- The roof sea: dense rows of low kiosks -------------------------------
   for (let i = 0; i < LANES_X.length - 1; i++) {
@@ -547,7 +391,7 @@ export function buildKejetiaScene(): BuiltScene {
             scene.add(stall);
             blockers.push({ x, z, r: 2 });
           } else {
-            const shop = kiosk(6 + rand() * 3, 5 + rand() * 2, rand);
+            const shop = kiosk(6 + rand() * 3, 5 + rand() * 2, rand, adinkraBoard);
             shop.position.set(x, 0, z);
             shop.rotation.y = Math.round(rand() * 4) * (Math.PI / 2);
             scene.add(shop);
@@ -593,38 +437,16 @@ export function buildKejetiaScene(): BuiltScene {
   }
 
   // --- Pin and approach ring ------------------------------------------------
-  const pin = makePin();
+  // A black star, for Ghana.
+  const pin = makePin({ body: GHANA_PALETTE.red, face: GHANA_PALETTE.gold, ink: GHANA_PALETTE.ink });
   pin.scale.setScalar(0.72);
   pin.position.set(AKOSUA.x, 3.2, AKOSUA.y - 0.6);
   scene.add(pin);
 
   const approachPoint = new THREE.Vector3(AKOSUA.x, 0, AKOSUA.y + 3.2);
-  const marker = new THREE.Mesh(
-    new THREE.RingGeometry(1.5, 1.9, 22),
-    new THREE.MeshBasicMaterial({
-      color: GHANA_PALETTE.red,
-      transparent: true,
-      opacity: 0.75,
-      side: THREE.DoubleSide,
-    })
-  );
-  marker.rotation.x = -Math.PI / 2;
-  marker.position.set(approachPoint.x, 0.06, approachPoint.z);
-  marker.userData.pin = true;
-  scene.add(marker);
+  scene.add(makeApproachRing(approachPoint, GHANA_PALETTE.red));
 
   // --- Crowd ----------------------------------------------------------------
-  interface Walker {
-    person: Person;
-    angle: number;
-    radiusX: number;
-    radiusZ: number;
-    cx: number;
-    cz: number;
-    speed: number;
-    lastX: number;
-    lastZ: number;
-  }
   const walkers: Walker[] = [];
   for (let i = 0; i < 28; i++) {
     const person = randomPerson(rand);
@@ -673,104 +495,22 @@ export function buildKejetiaScene(): BuiltScene {
   });
 
   // --- Light ----------------------------------------------------------------
-  const ambient = new THREE.HemisphereLight(0xfff4de, 0xa08868, 1.05);
-  scene.add(ambient);
+  const { ambient, sun } = addDaylight(scene, {
+    sky: 0xfff4de,
+    ground: 0xa08868,
+    ambientIntensity: 1.05,
+    sunColour: 0xfff0cf,
+    sunIntensity: 1.5,
+    sunPosition: [40, 60, 20],
+  });
 
-  const sun = new THREE.DirectionalLight(0xfff0cf, 1.5);
-  sun.position.set(40, 60, 20);
-  sun.castShadow = true;
-  sun.shadow.mapSize.set(1024, 1024);
-  sun.shadow.camera.left = -60;
-  sun.shadow.camera.right = 60;
-  sun.shadow.camera.top = 60;
-  sun.shadow.camera.bottom = -60;
-  sun.shadow.camera.far = 240;
-  sun.shadow.bias = -0.0007;
-  scene.add(sun);
-  scene.add(sun.target);
-
-  const POSTURES: Record<TraderMood, { arms: number; lean: number; tilt: number; spread: number }> = {
-    idle: { arms: 0, lean: 0, tilt: 0, spread: 0 },
-    speaking: { arms: -0.3, lean: 0.06, tilt: 0.05, spread: 0.18 },
-    listening: { arms: -0.12, lean: 0.16, tilt: 0.14, spread: 0 },
-    warm: { arms: -0.85, lean: 0.1, tilt: -0.06, spread: 0.45 },
-    pleased: { arms: -0.45, lean: 0.05, tilt: -0.04, spread: 0.2 },
-    cool: { arms: 1.25, lean: -0.12, tilt: -0.02, spread: -0.3 },
-  };
-  let mood: TraderMood = 'idle';
+  const posture = makePostureAnimator(trader, TRADER_POSTURES);
 
   const update = (dt: number, elapsed: number) => {
     pin.position.y = 3.2 + Math.sin(elapsed * 2) * 0.22;
     pin.rotation.y = elapsed * 0.9;
-
-    const target = POSTURES[mood];
-    const k = Math.min(1, dt * 4.5);
-    const limbs = trader.limbs;
-    limbs.leftArm.rotation.x += (target.arms - limbs.leftArm.rotation.x) * k;
-    limbs.rightArm.rotation.x += (target.arms - limbs.rightArm.rotation.x) * k;
-    limbs.leftArm.rotation.z += (-target.spread - limbs.leftArm.rotation.z) * k;
-    limbs.rightArm.rotation.z += (target.spread - limbs.rightArm.rotation.z) * k;
-    limbs.torso.rotation.x += (target.lean - limbs.torso.rotation.x) * k;
-    limbs.head.rotation.z += (target.tilt - limbs.head.rotation.z) * k;
-    limbs.torso.position.y = Math.sin(elapsed * 1.5) * 0.012;
-    if (mood === 'speaking') limbs.head.rotation.x = Math.sin(elapsed * 9) * 0.07;
-    else limbs.head.rotation.x *= 0.9;
-
-    for (const w of walkers) {
-      // Scratch values rather than Vector3 clones: two allocations per walker
-      // per frame was enough garbage to cause periodic collection pauses.
-      const prevX = w.person.group.position.x;
-      const prevZ = w.person.group.position.z;
-      w.angle += w.speed * dt * 0.25;
-      let x = w.cx + Math.cos(w.angle) * w.radiusX;
-      let z = w.cz + Math.sin(w.angle) * w.radiusZ;
-      for (const b of blockers) {
-        const dx = x - b.x;
-        const dz = z - b.z;
-        const distance = Math.hypot(dx, dz);
-        const minimum = b.r + 0.6;
-        if (distance < minimum && distance > 0.0001) {
-          x = b.x + (dx / distance) * minimum;
-          z = b.z + (dz / distance) * minimum;
-        }
-      }
-      w.person.group.position.set(x, w.person.group.position.y, z);
-      w.lastX = prevX;
-      w.lastZ = prevZ;
-    }
-
-    // Shoppers used to walk straight through one another. One relaxation pass
-    // over the crowd: each overlapping pair is pushed apart by half the
-    // overlap, which is enough to keep bodies separate without a real
-    // simulation. O(n^2) over ~30 people is a few hundred checks.
-    const SEPARATION = 0.95;
-    for (let i = 0; i < walkers.length; i++) {
-      const a = walkers[i].person.group.position;
-      for (let j = i + 1; j < walkers.length; j++) {
-        const b = walkers[j].person.group.position;
-        const dx = b.x - a.x;
-        const dz = b.z - a.z;
-        const distance = Math.hypot(dx, dz);
-        if (distance >= SEPARATION || distance < 0.0001) continue;
-        const push = (SEPARATION - distance) / 2;
-        const nx = dx / distance;
-        const nz = dz / distance;
-        a.x -= nx * push;
-        a.z -= nz * push;
-        b.x += nx * push;
-        b.z += nz * push;
-      }
-    }
-
-    for (const w of walkers) {
-      const dx = w.person.group.position.x - w.lastX;
-      const dz = w.person.group.position.z - w.lastZ;
-      const moved = Math.hypot(dx, dz);
-      if (moved > 0.001) {
-        w.person.group.rotation.y = Math.atan2(dx, dz);
-      }
-      animateWalk(w.person, elapsed, moved / Math.max(dt, 0.001) / 3);
-    }
+    posture.update(dt, elapsed);
+    stepCrowd(walkers, blockers, dt, elapsed);
     updateVehicles(vehicles, dt);
   };
 
@@ -784,14 +524,8 @@ export function buildKejetiaScene(): BuiltScene {
     pin,
     approachPoint,
     setPrice,
-    setTraderMood: (next: TraderMood) => {
-      mood = next;
-    },
-    traderHead: (out = headScratch) => {
-      trader.limbs.head.getWorldPosition(out);
-      out.y += 0.55;
-      return out;
-    },
+    setTraderMood: posture.setMood,
+    traderHead: headOf(trader),
     update,
   };
 }
