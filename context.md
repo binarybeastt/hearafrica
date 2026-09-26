@@ -1,7 +1,7 @@
 # HearAfrica — context
 
-Where the project stands and what is left, language by language. Written 2026-09-26 on the
-`server-live-tokens` branch. For how things work, see `README.md`; for the generated-scene
+Where the project stands and what is left, language by language. Written 2026-09-26; everything
+is on `main`. For how things work, see `README.md`; for the generated-scene
 plan, `docs/scene-generation-plan.md`.
 
 ## What it is
@@ -110,6 +110,6 @@ top, not a requirement.
 
 ## Shipping
 
-- Most of the work on `server-live-tokens` is not pushed yet (`git status` shows how far ahead it is); `main` still has the old version with the key in the browser bundle. Merge before deploying.
+- Everything is merged into `main` and pushed; `server-live-tokens` points at the same commit.
 - Deploy target: Vercel recommended (nothing needs a long-running server). Set `GEMINI_API_KEY` in the host's environment, never with a `NEXT_PUBLIC_` prefix.
 - Checks: `npm test`, `npm run typecheck`, `npm run build` (dev server stopped), `npm run check:scenes`.
