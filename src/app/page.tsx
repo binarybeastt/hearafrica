@@ -401,6 +401,7 @@ export default function HearAfricaPage() {
       {composerOpen && (
         <SituationComposer
           initialLanguage={activeLanguage ?? undefined}
+          part={bucket(lagosH(simT))}
           onReady={handleGeneratedReady}
           onClose={() => setComposerOpen(false)}
         />

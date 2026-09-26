@@ -143,7 +143,7 @@ CONTENT
 - Write ${spec.languageName} the way people in that place actually speak it: everyday forms, the English loanwords and English numbers locals really use. Not textbook forms.
 - Use correct diacritics and tone marks.
 - Each learner line is short (under 12 words) and useful beyond this one situation.
-- The first step is the learner greeting them, in the register their age and role demand. Mark mandatory respect words and honorifics with the "respect" or "honorific" chunk role.
+- The first step is the learner greeting them for the given time of day, in the register their age and role demand. Mark mandatory respect words and honorifics with the "respect" or "honorific" chunk role.
 - 4 to 6 steps. Use one "choose" step where the learner has a real decision (how directly to ask, how hard to push), with consequences in the reactions.
 - Reactions answer what the learner said, in character, and stay short.
 - If money is involved, use realistic local prices in ${spec.currency.symbol.trim()}.
@@ -155,11 +155,19 @@ SCENE
 If the description is not a real-life situation someone could practise, still produce a polite everyday exchange in the same place.`;
 }
 
-export async function draftScenario(apiKey: string, description: string, language: GeneratableLanguage): Promise<unknown> {
+const PART_OF_DAY = { m: 'morning', a: 'afternoon', e: 'evening' } as const;
+
+export async function draftScenario(
+  apiKey: string,
+  description: string,
+  language: GeneratableLanguage,
+  /** The world clock's part of the day, so greetings match it. */
+  part: keyof typeof PART_OF_DAY = 'm'
+): Promise<unknown> {
   const ai = new GoogleGenAI({ apiKey });
   const response = await ai.models.generateContent({
     model: GENERATOR_MODEL,
-    contents: `Situation: ${description}`,
+    contents: `Situation: ${description}\nTime of day: ${PART_OF_DAY[part]}.`,
     config: {
       systemInstruction: instructions(language),
       responseMimeType: 'application/json',

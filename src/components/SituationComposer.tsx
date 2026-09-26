@@ -17,11 +17,13 @@ const EXAMPLES = [
 
 interface SituationComposerProps {
   initialLanguage?: string;
+  /** The world clock's part of the day, so the greeting matches it. */
+  part: 'm' | 'a' | 'e';
   onReady: (lesson: GeneratedLesson) => void;
   onClose: () => void;
 }
 
-export const SituationComposer: React.FC<SituationComposerProps> = ({ initialLanguage, onReady, onClose }) => {
+export const SituationComposer: React.FC<SituationComposerProps> = ({ initialLanguage, part, onReady, onClose }) => {
   const [description, setDescription] = useState('');
   const [language, setLanguage] = useState<GeneratableLanguage>(
     (GENERATABLE_LANGUAGES as readonly string[]).includes(initialLanguage ?? '')
@@ -38,7 +40,7 @@ export const SituationComposer: React.FC<SituationComposerProps> = ({ initialLan
       const response = await fetch('/api/generate-scenario', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ description, language }),
+        body: JSON.stringify({ description, language, part }),
       });
       const body = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(body.error || `Something went wrong (HTTP ${response.status}).`);

@@ -27,6 +27,7 @@ export async function POST(request: Request) {
   const language: GeneratableLanguage = (GENERATABLE_LANGUAGES as readonly string[]).includes(body?.language)
     ? body.language
     : 'yoruba';
+  const part = ['m', 'a', 'e'].includes(body?.part) ? (body.part as 'm' | 'a' | 'e') : 'm';
   if (description.length < 8 || description.length > 400) {
     return Response.json({ error: 'Describe the situation in a sentence or two.' }, { status: 400 });
   }
@@ -35,7 +36,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const raw = await draftScenario(apiKey, description, language);
+    const raw = await draftScenario(apiKey, description, language, part);
     const seed = (Math.random() * 2 ** 31) | 0;
     const id = `gen_${createHash('sha256').update(`${language}:${description}:${seed}`).digest('hex').slice(0, 12)}`;
     const lesson = buildGeneratedLesson(raw, { id, description, language, seed });
