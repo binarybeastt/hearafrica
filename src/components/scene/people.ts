@@ -248,7 +248,9 @@ export function makePerson(opts: PersonOptions): Person {
       carry.add(basin);
       const goods = new THREE.Mesh(
         new THREE.SphereGeometry(0.3 * s, 10, 6, 0, Math.PI * 2, 0, Math.PI * 0.5),
-        mat(CLOTH_COLOURS[(Math.random() * CLOTH_COLOURS.length) | 0])
+        // Derived from what they wear rather than Math.random(), so a scene
+        // built from the same seed is the same scene.
+        mat(CLOTH_COLOURS[[...opts.cloth].reduce((n, c) => n + c.charCodeAt(0), 0) % CLOTH_COLOURS.length])
       );
       goods.position.y = 0.1 * s;
       carry.add(goods);

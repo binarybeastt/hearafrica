@@ -520,6 +520,8 @@ export const WorldCanvas: React.FC<WorldCanvasProps> = ({
       const nctx = nightC.getContext('2d');
       if (!nctx) return;
 
+      // A hidden or collapsed viewport reports 0 × 0; there is nothing to shade.
+      if (!(W > 0 && H > 0 && Number.isFinite(W) && Number.isFinite(H))) return;
       const gw = 72;
       const gh = Math.max(8, Math.round((72 * H) / W));
       if (nightC.width !== gw || nightC.height !== gh) {
