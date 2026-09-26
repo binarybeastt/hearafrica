@@ -12,7 +12,10 @@ export const GENERATOR_MODEL = 'gemini-3.8-flash';
 const line = {
   type: 'object',
   properties: {
-    native: { type: 'string', description: 'In the target language, with correct diacritics and tone marks.' },
+    native: {
+      type: 'string',
+      description: 'In the target language as a local would actually say it (not a textbook translation), with correct diacritics and tone marks.',
+    },
     phonetic: { type: 'string', description: 'A rough English-reader pronunciation guide.' },
     en: { type: 'string', description: 'What it means in English.' },
   },
@@ -141,8 +144,14 @@ function instructions(language: GeneratableLanguage): string {
   return `You design short spoken-language practice situations for learners of ${spec.languageName} (${spec.languageCode}).
 The learner describes a situation they will face in real life. Write a guided exchange for it.
 
+WHAT "CORRECT" MEANS
+Correct means what a local in that place would actually say in that moment, not a correct translation of the English. A line can be grammatical and still wrong because nobody says it that way. Always choose the phrasing people really use:
+- The everyday phrase over the literal translation, even when the literal one is grammatical.
+- The English loanwords, English numbers and code-switching locals really use, over "pure" forms nobody uses in speech.
+- The idiom for the situation (how people actually ask a price, greet a trader, get off a bus) over a word-for-word rendering of the learner's English.
+If you are unsure how a local would say something, choose the simpler, more common phrasing.
+
 CONTENT
-- Write ${spec.languageName} the way people in that place actually speak it: everyday forms, the English loanwords and English numbers locals really use. Not textbook forms.
 - Use correct diacritics and tone marks.
 - Each learner line is short (under 12 words) and useful beyond this one situation.
 - The first step is the learner greeting them for the given time of day, in the register their age and role demand. Mark mandatory respect words and honorifics with the "respect" or "honorific" chunk role.
