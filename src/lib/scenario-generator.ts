@@ -4,7 +4,7 @@
 
 import { GoogleGenAI } from '@google/genai';
 import { ALL_SCENARIOS } from '@/data/scenario-specs';
-import { DRESSING, GOODS, HEAD_STYLES, SCENE_TEMPLATES, STANDS, VEHICLE_KINDS } from '@/data/scene-layout';
+import { COUNTER_KINDS, DRESSING, GOODS, HEAD_STYLES, SCENE_TEMPLATES, STANDS, VEHICLE_KINDS } from '@/data/scene-layout';
 import type { GeneratableLanguage } from '@/data/generated';
 
 export const GENERATOR_MODEL = 'gemini-3.8-flash';
@@ -48,6 +48,8 @@ export const DRAFT_SCHEMA = {
         dressing: { type: 'array', items: { type: 'string', enum: [...DRESSING] } },
         vehicles: { type: 'array', items: { type: 'string', enum: [...VEHICLE_KINDS] } },
         density: { type: 'string', enum: ['quiet', 'busy'] },
+        extras: { type: 'integer', description: 'Indoors: how many other people are present (0-4).' },
+        counterKind: { type: 'string', enum: [...COUNTER_KINDS], description: 'For the "counter" template.' },
       },
       required: ['template', 'dressing', 'vehicles', 'density'],
     },
@@ -149,7 +151,8 @@ CONTENT
 - If money is involved, use realistic local prices in ${spec.currency.symbol.trim()}.
 
 SCENE
-- Pick the template that fits: "street" for most outdoor errands, "market-lane" for markets, "bus-stop" for transport.
+- Pick the template that fits: "parlour" for a visit inside someone's home; "counter" for an office, bank, clinic or pharmacy (set counterKind); "street" for other outdoor errands; "market-lane" for markets; "bus-stop" for transport.
+- Indoors, "extras" is who else is there: a spouse on the sofa, people waiting their turn. Vehicles are ignored.
 - Choose dressing and vehicles that fit the place. "stands" is where the person is when the learner arrives: "stall" or "kiosk" for sellers, "doorway" for someone at their home or shop, "open" for anyone else (a conductor, a passer-by, someone waiting).
 
 If the description is not a real-life situation someone could practise, still produce a polite everyday exchange in the same place.`;

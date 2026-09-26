@@ -28,7 +28,7 @@ import { WORLDS, WORLD_BY_LANGUAGE, WorldId, CLOCK_CITIES } from '@/data/worlds'
 import { lagosH, bucket, fmtTime, npcHere } from '@/lib/solar';
 
 /** What a generated scene's person stands at, for the HUD copy. */
-const STAND_NOUN = { stall: 'stall', kiosk: 'kiosk', doorway: 'door', open: 'spot' } as const;
+const STAND_NOUN = { stall: 'stall', kiosk: 'kiosk', doorway: 'door', open: 'spot', seated: 'seat', counter: 'counter' } as const;
 
 export default function HearAfricaPage() {
   // Simulation clock state

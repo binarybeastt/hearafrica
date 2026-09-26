@@ -34,4 +34,8 @@ export interface BuiltScene {
   traderHead: (out?: THREE.Vector3) => THREE.Vector3;
   /** Advances crowd and traffic. */
   update: (dt: number, elapsed: number) => void;
+  /** How far in front of the person the learner starts. Outdoors, 15m. */
+  spawnDistance?: number;
+  /** Walls the learner cannot walk through, for a room. */
+  bounds?: { minX: number; maxX: number; minZ: number; maxZ: number };
 }

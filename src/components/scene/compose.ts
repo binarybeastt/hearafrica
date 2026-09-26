@@ -7,7 +7,8 @@
 
 import * as THREE from 'three';
 import { rng } from '@/data/lagos-data';
-import type { Dressing, SceneLayout, SceneTemplate } from '@/data/scene-layout';
+import { INDOOR_TEMPLATES, type Dressing, type SceneLayout, type SceneTemplate } from '@/data/scene-layout';
+import { composeRoom } from './compose-room';
 import { makePerson, randomPerson } from './people';
 import { makeVehicle, updateVehicles, Vehicle } from './vehicles';
 import { mat, outline } from './kit/core';
@@ -96,7 +97,9 @@ function dustLane(scene: THREE.Scene, along: 'x' | 'z', at: number, length: numb
 }
 
 /** Each template lays its own ground and says where things may go. */
-const TEMPLATES: Record<SceneTemplate, (scene: THREE.Scene) => TemplatePlan> = {
+type OutdoorTemplate = Exclude<SceneTemplate, 'parlour' | 'counter'>;
+
+const TEMPLATES: Record<OutdoorTemplate, (scene: THREE.Scene) => TemplatePlan> = {
   // A pavement along the character's frontage, and the road behind the
   // learner: they spawn 15m out, which must be kerb, not carriageway.
   street: (scene) => {
@@ -248,6 +251,7 @@ function makeStand(layout: SceneLayout, rand: () => number) {
 }
 
 export function composeScene(layout: SceneLayout): BuiltScene {
+  if (INDOOR_TEMPLATES.includes(layout.template)) return composeRoom(layout);
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(PALETTE.paper);
   scene.fog = new THREE.Fog(PALETTE.paper, 60, 190);
@@ -260,7 +264,7 @@ export function composeScene(layout: SceneLayout): BuiltScene {
   ground.receiveShadow = true;
   scene.add(ground);
 
-  const plan = TEMPLATES[layout.template](scene);
+  const plan = TEMPLATES[layout.template as OutdoorTemplate](scene);
   const wants = (kind: Dressing) => layout.dressing.includes(kind);
 
   // --- Frontage: stalls, shops and kiosks, mixed as the layout asks ----------

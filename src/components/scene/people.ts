@@ -298,6 +298,17 @@ export function animateWalk(person: Person, time: number, speed: number) {
   limbs.torso.position.y = Math.abs(Math.cos(phase)) * 0.045;
 }
 
+/**
+ * Sits a person down: thighs forward, body lowered onto a seat of the given
+ * height. Legs are the only limbs the posture animator leaves alone, so a
+ * seated trader can still lean, gesture and nod.
+ */
+export function sitDown(person: Person, seatHeight: number) {
+  person.group.position.y = seatHeight + 0.08;
+  person.limbs.leftLeg.rotation.x = -1.2;
+  person.limbs.rightLeg.rotation.x = -1.2;
+}
+
 /** A random market-goer. */
 export function randomPerson(rand: () => number, opts: Partial<PersonOptions> = {}): Person {
   const female = rand() < 0.55;

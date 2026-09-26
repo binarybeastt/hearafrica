@@ -125,7 +125,7 @@ export const MarketScene3D: React.FC<MarketScene3DProps> = ({
       scale: 1,
     });
     const walker = you.group;
-    walker.position.copy(built.bisiPosition.clone().add(new THREE.Vector3(0, 0, 15)));
+    walker.position.copy(built.bisiPosition.clone().add(new THREE.Vector3(0, 0, built.spawnDistance ?? 15)));
     built.scene.add(walker);
 
     // Face down the lane toward Iya Bisi from the first frame.
@@ -236,6 +236,11 @@ export const MarketScene3D: React.FC<MarketScene3DProps> = ({
           position.x = b.x + (dx / distance) * minimum;
           position.z = b.z + (dz / distance) * minimum;
         }
+      }
+      // A room's walls.
+      if (built.bounds) {
+        position.x = THREE.MathUtils.clamp(position.x, built.bounds.minX, built.bounds.maxX);
+        position.z = THREE.MathUtils.clamp(position.z, built.bounds.minZ, built.bounds.maxZ);
       }
       return position;
     };
