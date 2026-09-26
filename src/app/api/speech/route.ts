@@ -2,11 +2,14 @@
 // TTS_LANGUAGES. Ephemeral tokens only work with the Live API, so unlike Live
 // this has to run here, with the key.
 //
-// It only speaks lines from the encounter scripts: anything else is refused,
-// so the route cannot be used as a free general-purpose TTS service.
+// It only speaks lines from the encounter scripts, hand-written or generated
+// on this server: anything else is refused, so the route cannot be used as a
+// free general-purpose TTS service.
 // https://ai.google.dev/gemini-api/docs/speech-generation
 
 import { ttsScript } from '@/lib/speech-script';
+import { isGeneratedLine } from '@/lib/generated-store';
+import { usesTts } from '@/lib/speech-engines';
 import { isCrossSite, rateLimiter } from '@/lib/request-guard';
 import { pcmFromWav } from '@/lib/wav';
 
@@ -44,7 +47,8 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
   const text = typeof body?.text === 'string' ? body.text : '';
   const languageName = typeof body?.languageName === 'string' ? body.languageName : '';
-  if (!SCRIPT.get(languageName)?.has(text)) {
+  const scripted = SCRIPT.get(languageName)?.has(text) || (usesTts(languageName) && isGeneratedLine(languageName, text));
+  if (!scripted) {
     return Response.json({ error: 'Only lesson lines can be spoken.' }, { status: 400 });
   }
   if (tooMany(request)) {

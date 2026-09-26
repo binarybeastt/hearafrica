@@ -12,6 +12,8 @@
 // whole-sentence translation. Treat every string here as provisional until a
 // fluent speaker signs it off.
 
+import { registeredLesson } from './generated-registry';
+
 export type ChunkRole =
   | 'respect'
   | 'greeting'
@@ -657,7 +659,7 @@ export const LEARNING_CONTENT: Record<string, LearningContent> = {
 };
 
 export function getLearningContent(scenarioId: string): LearningContent | null {
-  return LEARNING_CONTENT[scenarioId] ?? null;
+  return registeredLesson(scenarioId)?.content ?? LEARNING_CONTENT[scenarioId] ?? null;
 }
 
 /** Joins a beat's target chunks into the full target line. */

@@ -77,7 +77,11 @@ test('refuses audio the players cannot play as-is', () => {
 // What the speech route will agree to say
 // ---------------------------------------------------------------------------
 
-const loadEncounters = () => load('src/data/encounters.ts', { './dialogue': load('src/data/dialogue.ts') });
+const loadEncounters = () =>
+  load('src/data/encounters.ts', {
+    './dialogue': load('src/data/dialogue.ts'),
+    './generated-registry': load('src/data/generated-registry.ts'),
+  });
 const { spokenLines, YORUBA_ENCOUNTER } = loadEncounters();
 
 test('the allowed script covers every line the lesson plays', () => {

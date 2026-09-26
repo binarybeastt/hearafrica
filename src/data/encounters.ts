@@ -14,6 +14,7 @@
 // TRANSLATION STATUS: first-pass, not yet reviewed by native speakers.
 
 import { GREET } from './dialogue';
+import { registeredLesson } from './generated-registry';
 
 /** Part of the day, as the world clock buckets it: morning, afternoon, evening. */
 export type DayPart = 'm' | 'a' | 'e';
@@ -1010,6 +1011,8 @@ export const ENCOUNTERS: Record<string, Encounter> = {
  * callers can compare it by identity.
  */
 export function getEncounter(scenarioId: string, part: DayPart = 'm'): Encounter | null {
+  const generated = registeredLesson(scenarioId);
+  if (generated) return generated.encounter;
   if (scenarioId === YORUBA_ENCOUNTER.scenarioId) return YORUBA_BY_PART[part];
   return ENCOUNTERS[scenarioId] ?? null;
 }

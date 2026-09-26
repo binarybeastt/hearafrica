@@ -300,8 +300,9 @@ test("the model's coaching note is what the learner is shown", () => {
 test('every chunk a script step names exists in its learning content', () => {
   // A mistyped chunk id silently drops its tile and, for a respect chunk, the
   // mandatory-word check with it.
-  const { allEncounters } = load('src/data/encounters.ts', { './dialogue': load('src/data/dialogue.ts') });
-  const { getLearningContent } = load('src/data/learning-content.ts');
+  const registry = { './generated-registry': load('src/data/generated-registry.ts') };
+  const { allEncounters } = load('src/data/encounters.ts', { './dialogue': load('src/data/dialogue.ts'), ...registry });
+  const { getLearningContent } = load('src/data/learning-content.ts', registry);
   for (const encounter of allEncounters()) {
     const content = getLearningContent(encounter.scenarioId);
     assert.ok(content, encounter.id);
