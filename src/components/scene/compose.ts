@@ -97,15 +97,16 @@ function dustLane(scene: THREE.Scene, along: 'x' | 'z', at: number, length: numb
 
 /** Each template lays its own ground and says where things may go. */
 const TEMPLATES: Record<SceneTemplate, (scene: THREE.Scene) => TemplatePlan> = {
-  // A road past the character's frontage, with shops on both sides.
+  // A pavement along the character's frontage, and the road behind the
+  // learner: they spawn 15m out, which must be kerb, not carriageway.
   street: (scene) => {
-    laySealedRoad(scene, 'x', 10, 200);
+    laySealedRoad(scene, 'x', 24, 200);
     dustLane(scene, 'x', 2.5, 200, 5);
     return {
-      frontage: [...row(-8, -66, 66, 11, 0), ...row(27, -66, 66, 11, Math.PI)],
-      verge: [...row(4.5, -70, 70, 13, 0), ...row(16.5, -64, 64, 13, 0)],
+      frontage: [...row(-8, -66, 66, 11, 0), ...row(38, -66, 66, 11, Math.PI)],
+      verge: [...row(4.5, -70, 70, 13, 0), ...row(17, -64, 64, 13, 0)],
       background: row(-26, -72, 72, 18, 0),
-      roads: [{ axis: 'x', at: 10, limit: 100 }],
+      roads: [{ axis: 'x', at: 24, limit: 100 }],
       shelter: { x: -11, z: 3.5, rotY: 0 },
       crowd: { spanX: 60, spanZ: 16 },
     };

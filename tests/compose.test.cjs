@@ -72,3 +72,22 @@ test('the same layout always builds the same scene', () => {
   };
   assert.equal(positions(composeScene(layout)), positions(composeScene(layout)));
 });
+
+test('the learner never spawns on a road', () => {
+  // The renderer puts them 15m in front of the person, facing them.
+  for (const template of SCENE_TEMPLATES) {
+    const built = composeScene(normalizeLayout({ template, seed: 3 }));
+    const roads = [];
+    built.scene.traverse((o) => {
+      if (o.isMesh && o.geometry.type === 'PlaneGeometry' && o.material.color?.getHexString() === '4b4a46') roads.push(o);
+    });
+    for (const road of roads) {
+      const { width, height } = road.geometry.parameters;
+      // Planes are laid flat, so their height runs along z.
+      const halfZ = height / 2;
+      const halfX = width / 2;
+      const onRoad = Math.abs(0 - road.position.x) < halfX && Math.abs(15 - road.position.z) < halfZ;
+      assert.equal(onRoad, false, `${template}: spawn is on the road at z=${road.position.z}`);
+    }
+  }
+});
