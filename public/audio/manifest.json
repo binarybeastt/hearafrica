@@ -87,11 +87,22 @@
   "Harshen Hausa|vghfjk": "ha/vghfjk.mp3",
   "Harshen Hausa|yii1v6": "ha/yii1v6.mp3",
   "Harshen Hausa|zs0rh9": "ha/zs0rh9.mp3",
+  "Twi|11munfw": "ak/11munfw.mp3",
+  "Twi|11ve42d": "ak/11ve42d.mp3",
+  "Twi|15xtpv4": "ak/15xtpv4.mp3",
+  "Twi|1811tu8": "ak/1811tu8.mp3",
   "Twi|1k0t4rb": "ak/1k0t4rb.mp3",
   "Twi|1nl4l3a": "ak/1nl4l3a.mp3",
+  "Twi|1thi3cb": "ak/1thi3cb.mp3",
+  "Twi|1tyj3tp": "ak/1tyj3tp.mp3",
   "Twi|1ub5348": "ak/1ub5348.mp3",
+  "Twi|1w3800s": "ak/1w3800s.mp3",
+  "Twi|7j7wwp": "ak/7j7wwp.mp3",
+  "Twi|8buhvb": "ak/8buhvb.mp3",
   "Twi|oszmnd": "ak/oszmnd.mp3",
+  "Twi|q06z79": "ak/q06z79.mp3",
   "Twi|qswey7": "ak/qswey7.mp3",
+  "Twi|v3gqu1": "ak/v3gqu1.mp3",
   "Twi|zq5j2w": "ak/zq5j2w.mp3"
  },
  "lines": {
@@ -105,7 +116,7 @@
    "text": "Ẹ jọ̀ọ́ ma, báwo lẹ ṣe lé ata yín?",
    "voice": "Kore",
    "slow": false,
-   "seconds": 3.0
+   "seconds": 3
   },
   "Èdè Yorùbá|11oe9hq|slow": {
    "text": "Ẹ jọ̀ọ́ ma, báwo lẹ ṣe lé ata yín?",
@@ -243,7 +254,7 @@
    "text": "Ata? Paint kan jẹ́ three thousand.",
    "voice": "Kore",
    "slow": false,
-   "seconds": 3.0
+   "seconds": 3
   },
   "Èdè Yorùbá|246zw7": {
    "text": "Mm. Káàsán.",
@@ -375,7 +386,7 @@
    "text": "Ẹ jọ̀ọ́ ma, báwo lẹ ṣe lé tòmátì yín?",
    "voice": "Kore",
    "slow": true,
-   "seconds": 6.0
+   "seconds": 6
   },
   "Èdè Yorùbá|of8040": {
    "text": "Ẹ káalẹ́ ma",
@@ -441,7 +452,7 @@
    "text": "Káalẹ́ ọmọ mi, ṣé dáadáa ni?",
    "voice": "Kore",
    "slow": false,
-   "seconds": 3.0
+   "seconds": 3
   },
   "Èdè Yorùbá|yqt03m": {
    "text": "Ó wọ́n díẹ̀ ma. Kí ni last price yín?",
@@ -465,7 +476,7 @@
    "text": "Madalla! Allah ya albarkace ka. Sai an jima!",
    "voice": "Charon",
    "slow": false,
-   "seconds": 4.0
+   "seconds": 4
   },
   "Harshen Hausa|1dwooja": {
    "text": "To, shikenan Alhaji. Na gode ƙwarai!",
@@ -617,6 +628,30 @@
    "slow": false,
    "seconds": 4.56
   },
+  "Twi|11munfw": {
+   "text": "Mepa wo kyɛw, kente ntoma yi ɛyɛ sɛn?",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 2.6
+  },
+  "Twi|11ve42d": {
+   "text": "Wo ani tew! Ɛnna wo ne me kasa yie. Cedi ahasa ne aduonu.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 5.16
+  },
+  "Twi|15xtpv4": {
+   "text": "Aane. Cedi ahanan ne aduonum.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 3.48
+  },
+  "Twi|1811tu8": {
+   "text": "Ntoma yi nyɛ fɛ saa. Cedi ahanu.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 3.56
+  },
   "Twi|1k0t4rb": {
    "text": "Hmm. Maakye.",
    "voice": "Kore",
@@ -629,11 +664,41 @@
    "slow": false,
    "seconds": 4.32
   },
+  "Twi|1thi3cb": {
+   "text": "Cedi ahanan ne aduonum.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 2.44
+  },
+  "Twi|1tyj3tp": {
+   "text": "Ɛyɛ fɛ paa, Auntie. Nanso ɛyɛ den — mepa wo kyɛw, te so kakra.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 6
+  },
   "Twi|1ub5348": {
    "text": "Yaa ɛna, Auntie",
    "voice": "Kore",
    "slow": false,
    "seconds": 1.36
+  },
+  "Twi|1w3800s": {
+   "text": "Ɛyɛ, me ba. Cedi ahanan. Medaase.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 4.36
+  },
+  "Twi|7j7wwp": {
+   "text": "Ɛyɛ Cedi ahanan ne aduonum. Me nsa na ɛnwenee.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 4.2
+  },
+  "Twi|8buhvb": {
+   "text": "Mepa wo kyɛw, gye Cedi ahanan.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 2.6
   },
   "Twi|oszmnd": {
    "text": "Maakye oo.",
@@ -641,11 +706,23 @@
    "slow": false,
    "seconds": 1.28
   },
+  "Twi|q06z79": {
+   "text": "Cedi ahanan ne aduonum na ɛyɛ.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 2.8
+  },
   "Twi|qswey7": {
    "text": "Aane, saa ara. Yaa ɛna. Ɛyɛ, me ba.",
    "voice": "Kore",
    "slow": false,
    "seconds": 5.8
+  },
+  "Twi|v3gqu1": {
+   "text": "Hwɛ yiye! Me nsa na ɛnwenee, dapɛn mmiɛnsa. Cedi ahanan ne aduonu.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 6
   },
   "Twi|zq5j2w": {
    "text": "Maakye, me ba! Bra bɛhwɛ me kente.",
