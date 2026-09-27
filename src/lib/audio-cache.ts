@@ -11,6 +11,7 @@
 import { getSynthesizer, type SpokenTake } from './speech-synthesizer';
 import { AudioPlayer } from './audio-worklet';
 import { usesTts } from './speech-engines';
+import { bakedAudio, fingerprint } from './baked-audio';
 
 const DB_NAME = 'hearafrica_audio';
 const DB_VERSION = 1;
@@ -99,16 +100,6 @@ export interface SpeakRequest {
   slow?: boolean;
 }
 
-/** A short, stable fingerprint of a line's text (FNV-1a). */
-function fingerprint(text: string): string {
-  let hash = 0x811c9dc5;
-  for (let i = 0; i < text.length; i++) {
-    hash ^= text.charCodeAt(i);
-    hash = Math.imul(hash, 0x01000193);
-  }
-  return (hash >>> 0).toString(36);
-}
-
 /**
  * The text is part of the key, so rewording a line replaces its audio instead
  * of replaying the old reading from a slot id that did not change. TTS takes
@@ -149,6 +140,14 @@ export async function getLineAudio(request: SpeakRequest): Promise<Uint8Array> {
   if (pending) return pending;
 
   const task = (async () => {
+    // A pre-generated file comes first, even over a take this browser stored
+    // earlier: the file is the reading everyone hears and a speaker reviews.
+    const baked = await bakedAudio(request.languageName, request.text, !!request.slow);
+    if (baked && baked.byteLength > 0) {
+      memory.set(cacheKey, baked);
+      return baked;
+    }
+
     const stored = await readDb(cacheKey);
     if (stored && stored.byteLength > 0) {
       memory.set(cacheKey, stored);

@@ -80,6 +80,14 @@ Both Live sessions are long-lived, because opening one per line was the source o
 
 A line is synthesized once and cached in IndexedDB, so replays are instant and free. **Nothing is bundled** — a fresh browser regenerates every line. Audio-only Live sessions cap at 15 minutes; when a socket dies it is nulled and the next request reconnects, costing one retry rather than the lesson.
 
+### Baked audio
+
+Scripted lines are voiced **ahead of time**: `npm run bake:audio` sends each line to TTS once, checks it is not a clipped fragment, and saves it as a 48 kbps MP3 under `public/audio/` (about 15 KB a line), listed in `public/audio/manifest.json`. The app plays the file (`src/lib/baked-audio.ts`) and only synthesizes lines that have none.
+
+This is forced by the TTS quota: **100 requests a day** on the current tier, shared by every visitor, and one fresh browser's lesson uses 25–45. A full bake (149 lines for the four lessons, including slow takes of the lines learners practise) takes two days; each run skips what is baked and stops cleanly when the day's quota is spent. Anyone using a TTS lesson (locally or on the live site) draws on the same quota while a bake runs.
+
+It is also the review step: every learner hears the same file, so a fluent speaker listens once, and a line they reject is re-voiced with `npm run bake:audio -- --redo=<manifest key>`.
+
 ### Language support
 
 Yorùbá (`yo`), Hausa (`ha`) and Akan (`ak`) are all in the Live API's 99-language list. **Igbo is not**, in either direction — so its audio and its transcription are both unreliable, and it should not be treated as supported. The Live API's language list is much broader than the standalone TTS and Speech-to-Text products; this app uses the Live API for both directions and so is not limited by those.

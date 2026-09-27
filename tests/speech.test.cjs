@@ -134,7 +134,11 @@ test('the greeting follows the part of the day, as the clock names it', () => {
 // Routing a line to its engine
 // ---------------------------------------------------------------------------
 
-function cacheWith({ ttsBytes = 48000 * 3 } = {}) {
+/** The real fingerprint, and no pre-generated files, unless a test says otherwise. */
+const { fingerprint } = load('src/lib/baked-audio.ts');
+const noneBaked = { fingerprint, bakedAudio: async () => null };
+
+function cacheWith({ ttsBytes = 48000 * 3, baked = noneBaked } = {}) {
   const calls = { fetch: [], live: 0 };
   const cache = load(
     'src/lib/audio-cache.ts',
@@ -149,6 +153,7 @@ function cacheWith({ ttsBytes = 48000 * 3 } = {}) {
       },
       './speech-engines': load('src/lib/speech-engines.ts'),
       './audio-worklet': { AudioPlayer: function () { return {}; } },
+      './baked-audio': baked,
     },
     {
       fetch: async (url, init) => {
@@ -223,6 +228,7 @@ test('lines are voiced by whoever speaks them', () => {
 });
 
 test('when TTS is out, the Live voice reads the line and it is not stored', async () => {
+  const baked = noneBaked;
   const calls = { fetch: 0, live: 0 };
   const cache = load(
     'src/lib/audio-cache.ts',
@@ -232,6 +238,7 @@ test('when TTS is out, the Live voice reads the line and it is not stored', asyn
       },
       './speech-engines': load('src/lib/speech-engines.ts'),
       './audio-worklet': { AudioPlayer: function () { return {}; } },
+      './baked-audio': baked,
     },
     {
       // The daily TTS quota is spent: every request is refused.
@@ -249,4 +256,23 @@ test('when TTS is out, the Live voice reads the line and it is not stored', asyn
   await cache.getLineAudio({ ...line('yo_s4:target'), text: 'Ẹ jọ̀ọ́ ma, ẹ tún un sọ.' });
   assert.equal(calls.fetch, 1);
   assert.equal(calls.live, 2);
+});
+
+test('a line with a pre-generated file plays the file, with no synthesis', async () => {
+  const file = new Uint8Array(48000 * 2);
+  const asked = [];
+  const baked = { fingerprint, bakedAudio: async (languageName, text, slow) => { asked.push([languageName, text, slow]); return file; } };
+  const { cache, calls } = cacheWith({ baked });
+  const bytes = await cache.getLineAudio({ key: 'yo_s3:target', text: LINE, languageName: 'Èdè Yorùbá', slow: true });
+  assert.equal(bytes, file);
+  assert.deepEqual(asked, [['Èdè Yorùbá', LINE, true]]);
+  assert.equal(calls.fetch.length, 0, 'no TTS request');
+  assert.equal(calls.live, 0, 'no Live socket');
+});
+
+test('baked files are keyed by language, text and pace', () => {
+  const { bakedKey } = load('src/lib/baked-audio.ts');
+  assert.equal(bakedKey('Twi', 'Maakye'), `Twi|${fingerprint('Maakye')}`);
+  assert.equal(bakedKey('Twi', 'Maakye', true), `Twi|${fingerprint('Maakye')}|slow`);
+  assert.notEqual(bakedKey('Twi', 'Maakye'), bakedKey('Twi', 'Maaha'));
 });

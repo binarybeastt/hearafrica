@@ -10,7 +10,8 @@
     "test": "node --test tests/*.test.cjs",
     "check:live": "node scripts/check-live.cjs",
     "check:judge": "node scripts/check-judge.cjs",
-    "check:scenes": "node scripts/scene-fingerprint.cjs --check"
+    "check:scenes": "node scripts/scene-fingerprint.cjs --check",
+    "bake:audio": "node scripts/bake-audio.cjs"
   },
   "dependencies": {
     "@google/genai": "^2.23.0",

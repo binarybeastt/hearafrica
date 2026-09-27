@@ -1,0 +1,657 @@
+{
+ "files": {
+  "Èdè Yorùbá|11fdh6n": "yo/11fdh6n.mp3",
+  "Èdè Yorùbá|11oe9hq": "yo/11oe9hq.mp3",
+  "Èdè Yorùbá|11oe9hq|slow": "yo/11oe9hq-slow.mp3",
+  "Èdè Yorùbá|1207y05": "yo/1207y05.mp3",
+  "Èdè Yorùbá|15feq2x": "yo/15feq2x.mp3",
+  "Èdè Yorùbá|15t7i1s": "yo/15t7i1s.mp3",
+  "Èdè Yorùbá|15t7i1s|slow": "yo/15t7i1s-slow.mp3",
+  "Èdè Yorùbá|17d0n0r": "yo/17d0n0r.mp3",
+  "Èdè Yorùbá|1a10zmo": "yo/1a10zmo.mp3",
+  "Èdè Yorùbá|1f9s0w9": "yo/1f9s0w9.mp3",
+  "Èdè Yorùbá|1ft6cf3": "yo/1ft6cf3.mp3",
+  "Èdè Yorùbá|1iqckmb": "yo/1iqckmb.mp3",
+  "Èdè Yorùbá|1iqckmb|slow": "yo/1iqckmb-slow.mp3",
+  "Èdè Yorùbá|1j86e96": "yo/1j86e96.mp3",
+  "Èdè Yorùbá|1oxlt8a": "yo/1oxlt8a.mp3",
+  "Èdè Yorùbá|1oxlt8a|slow": "yo/1oxlt8a-slow.mp3",
+  "Èdè Yorùbá|1rjuyv": "yo/1rjuyv.mp3",
+  "Èdè Yorùbá|1rjuyv|slow": "yo/1rjuyv-slow.mp3",
+  "Èdè Yorùbá|1sw7flk": "yo/1sw7flk.mp3",
+  "Èdè Yorùbá|1sykxm2": "yo/1sykxm2.mp3",
+  "Èdè Yorùbá|1sykxm2|slow": "yo/1sykxm2-slow.mp3",
+  "Èdè Yorùbá|1ue5ion": "yo/1ue5ion.mp3",
+  "Èdè Yorùbá|1ukfx5l": "yo/1ukfx5l.mp3",
+  "Èdè Yorùbá|1ukfx5l|slow": "yo/1ukfx5l-slow.mp3",
+  "Èdè Yorùbá|1uooxsu": "yo/1uooxsu.mp3",
+  "Èdè Yorùbá|246zw7": "yo/246zw7.mp3",
+  "Èdè Yorùbá|25nba4": "yo/25nba4.mp3",
+  "Èdè Yorùbá|2vpthj": "yo/2vpthj.mp3",
+  "Èdè Yorùbá|2vpthj|slow": "yo/2vpthj-slow.mp3",
+  "Èdè Yorùbá|32yjui": "yo/32yjui.mp3",
+  "Èdè Yorùbá|388thl": "yo/388thl.mp3",
+  "Èdè Yorùbá|3nfxtq": "yo/3nfxtq.mp3",
+  "Èdè Yorùbá|5r6wl4": "yo/5r6wl4.mp3",
+  "Èdè Yorùbá|9wu9rp": "yo/9wu9rp.mp3",
+  "Èdè Yorùbá|9wu9rp|slow": "yo/9wu9rp-slow.mp3",
+  "Èdè Yorùbá|ak4vqh": "yo/ak4vqh.mp3",
+  "Èdè Yorùbá|hjojub": "yo/hjojub.mp3",
+  "Èdè Yorùbá|hjojub|slow": "yo/hjojub-slow.mp3",
+  "Èdè Yorùbá|id76t9": "yo/id76t9.mp3",
+  "Èdè Yorùbá|immeln": "yo/immeln.mp3",
+  "Èdè Yorùbá|jm2dpm": "yo/jm2dpm.mp3",
+  "Èdè Yorùbá|jobalw": "yo/jobalw.mp3",
+  "Èdè Yorùbá|m3fo2v": "yo/m3fo2v.mp3",
+  "Èdè Yorùbá|mi4vz5": "yo/mi4vz5.mp3",
+  "Èdè Yorùbá|n954og": "yo/n954og.mp3",
+  "Èdè Yorùbá|njijl4": "yo/njijl4.mp3",
+  "Èdè Yorùbá|njijl4|slow": "yo/njijl4-slow.mp3",
+  "Èdè Yorùbá|of8040": "yo/of8040.mp3",
+  "Èdè Yorùbá|of8040|slow": "yo/of8040-slow.mp3",
+  "Èdè Yorùbá|oj3y4z": "yo/oj3y4z.mp3",
+  "Èdè Yorùbá|oraua8": "yo/oraua8.mp3",
+  "Èdè Yorùbá|p2tphn": "yo/p2tphn.mp3",
+  "Èdè Yorùbá|p2tphn|slow": "yo/p2tphn-slow.mp3",
+  "Èdè Yorùbá|r525ve": "yo/r525ve.mp3",
+  "Èdè Yorùbá|rddz5d": "yo/rddz5d.mp3",
+  "Èdè Yorùbá|vq16vk": "yo/vq16vk.mp3",
+  "Èdè Yorùbá|y9dogl": "yo/y9dogl.mp3",
+  "Èdè Yorùbá|yk1kcv": "yo/yk1kcv.mp3",
+  "Èdè Yorùbá|yqt03m": "yo/yqt03m.mp3",
+  "Èdè Yorùbá|yqt03m|slow": "yo/yqt03m-slow.mp3",
+  "Harshen Hausa|13d5hep": "ha/13d5hep.mp3",
+  "Harshen Hausa|1dsa5ja": "ha/1dsa5ja.mp3",
+  "Harshen Hausa|1dwooja": "ha/1dwooja.mp3",
+  "Harshen Hausa|1dwooja|slow": "ha/1dwooja-slow.mp3",
+  "Harshen Hausa|1gcnvnk": "ha/1gcnvnk.mp3",
+  "Harshen Hausa|1gcnvnk|slow": "ha/1gcnvnk-slow.mp3",
+  "Harshen Hausa|1moeiqg": "ha/1moeiqg.mp3",
+  "Harshen Hausa|1moeiqg|slow": "ha/1moeiqg-slow.mp3",
+  "Harshen Hausa|1peie3b": "ha/1peie3b.mp3",
+  "Harshen Hausa|1saf9qb": "ha/1saf9qb.mp3",
+  "Harshen Hausa|311e6g": "ha/311e6g.mp3",
+  "Harshen Hausa|311e6g|slow": "ha/311e6g-slow.mp3",
+  "Harshen Hausa|386p1c": "ha/386p1c.mp3",
+  "Harshen Hausa|386p1c|slow": "ha/386p1c-slow.mp3",
+  "Harshen Hausa|80nle3": "ha/80nle3.mp3",
+  "Harshen Hausa|fjvqu": "ha/fjvqu.mp3",
+  "Harshen Hausa|hwer1j": "ha/hwer1j.mp3",
+  "Harshen Hausa|jgnb6a": "ha/jgnb6a.mp3",
+  "Harshen Hausa|kjysk3": "ha/kjysk3.mp3",
+  "Harshen Hausa|odx9j5": "ha/odx9j5.mp3",
+  "Harshen Hausa|qz03k3": "ha/qz03k3.mp3",
+  "Harshen Hausa|rsa7wa": "ha/rsa7wa.mp3",
+  "Harshen Hausa|v75all": "ha/v75all.mp3",
+  "Harshen Hausa|v75all|slow": "ha/v75all-slow.mp3",
+  "Harshen Hausa|vghfjk": "ha/vghfjk.mp3",
+  "Harshen Hausa|yii1v6": "ha/yii1v6.mp3",
+  "Harshen Hausa|zs0rh9": "ha/zs0rh9.mp3",
+  "Twi|1k0t4rb": "ak/1k0t4rb.mp3",
+  "Twi|1nl4l3a": "ak/1nl4l3a.mp3",
+  "Twi|1ub5348": "ak/1ub5348.mp3",
+  "Twi|oszmnd": "ak/oszmnd.mp3",
+  "Twi|qswey7": "ak/qswey7.mp3",
+  "Twi|zq5j2w": "ak/zq5j2w.mp3"
+ },
+ "lines": {
+  "Èdè Yorùbá|11fdh6n": {
+   "text": "Bẹ́ẹ̀ ni. Eléyìí jẹ́ five hundred, paint kan jẹ́ four thousand, agbọ̀n kan jẹ́ sixty thousand.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 7.04
+  },
+  "Èdè Yorùbá|11oe9hq": {
+   "text": "Ẹ jọ̀ọ́ ma, báwo lẹ ṣe lé ata yín?",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 3.0
+  },
+  "Èdè Yorùbá|11oe9hq|slow": {
+   "text": "Ẹ jọ̀ọ́ ma, báwo lẹ ṣe lé ata yín?",
+   "voice": "Kore",
+   "slow": true,
+   "seconds": 6.32
+  },
+  "Èdè Yorùbá|1207y05": {
+   "text": "Paint kan jẹ́ three thousand.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 2.24
+  },
+  "Èdè Yorùbá|15feq2x": {
+   "text": "Mo ti dì í. O ṣeun.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 2.16
+  },
+  "Èdè Yorùbá|15t7i1s": {
+   "text": "Ẹ jọ̀ọ́ ma, ẹ tún un sọ.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 2.16
+  },
+  "Èdè Yorùbá|15t7i1s|slow": {
+   "text": "Ẹ jọ̀ọ́ ma, ẹ tún un sọ.",
+   "voice": "Kore",
+   "slow": true,
+   "seconds": 5.32
+  },
+  "Èdè Yorùbá|17d0n0r": {
+   "text": "Ó dáa, mo ti fi jàra sí i. Máa bọ̀ o.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 4.16
+  },
+  "Èdè Yorùbá|1a10zmo": {
+   "text": "Mm. Káalẹ́.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 1.68
+  },
+  "Èdè Yorùbá|1f9s0w9": {
+   "text": "Mm. Káàárọ̀.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 1.44
+  },
+  "Èdè Yorùbá|1ft6cf3": {
+   "text": "Yẹn ni! Káàsán ọmọ mi. Ṣé dáadáa ni?",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 3.28
+  },
+  "Èdè Yorùbá|1iqckmb": {
+   "text": "Eléyìí, five hundred. Paint kan, four thousand. Agbọ̀n kan, sixty thousand.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 7.8
+  },
+  "Èdè Yorùbá|1iqckmb|slow": {
+   "text": "Eléyìí, five hundred. Paint kan, four thousand. Agbọ̀n kan, sixty thousand.",
+   "voice": "Kore",
+   "slow": true,
+   "seconds": 12.68
+  },
+  "Èdè Yorùbá|1j86e96": {
+   "text": "Yẹn ni! Káalẹ́ ọmọ mi. Ṣé dáadáa ni?",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 3.96
+  },
+  "Èdè Yorùbá|1oxlt8a": {
+   "text": "Dáadáa ni ma. Ẹ kú ọjà o!",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 3.16
+  },
+  "Èdè Yorùbá|1oxlt8a|slow": {
+   "text": "Dáadáa ni ma. Ẹ kú ọjà o!",
+   "voice": "Kore",
+   "slow": true,
+   "seconds": 5.12
+  },
+  "Èdè Yorùbá|1rjuyv": {
+   "text": "Ẹ jọ̀ọ́ ma, ẹ ṣe é fún mi ní fifty-eight thousand.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 4.36
+  },
+  "Èdè Yorùbá|1rjuyv|slow": {
+   "text": "Ẹ jọ̀ọ́ ma, ẹ ṣe é fún mi ní fifty-eight thousand.",
+   "voice": "Kore",
+   "slow": true,
+   "seconds": 7.44
+  },
+  "Èdè Yorùbá|1sw7flk": {
+   "text": "Káàárọ̀. Ṣé dáadáa ni?",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 2.24
+  },
+  "Èdè Yorùbá|1sykxm2": {
+   "text": "Ó dáa. Eléyìí, five hundred. Paint kan, four thousand. Agbọ̀n kan, sixty thousand.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 8.2
+  },
+  "Èdè Yorùbá|1sykxm2|slow": {
+   "text": "Ó dáa. Eléyìí, five hundred. Paint kan, four thousand. Agbọ̀n kan, sixty thousand.",
+   "voice": "Kore",
+   "slow": true,
+   "seconds": 12.04
+  },
+  "Èdè Yorùbá|1ue5ion": {
+   "text": "Ọmọ mi, o mọ ọjà! Fifty thousand, last price nìyẹn.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 5.04
+  },
+  "Èdè Yorùbá|1ukfx5l": {
+   "text": "Ẹ káàárọ̀ ma",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 1.48
+  },
+  "Èdè Yorùbá|1ukfx5l|slow": {
+   "text": "Ẹ káàárọ̀ ma",
+   "voice": "Kore",
+   "slow": true,
+   "seconds": 3.04
+  },
+  "Èdè Yorùbá|1uooxsu": {
+   "text": "Ata? Paint kan jẹ́ three thousand.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 3.0
+  },
+  "Èdè Yorùbá|246zw7": {
+   "text": "Mm. Káàsán.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 2.04
+  },
+  "Èdè Yorùbá|25nba4": {
+   "text": "Ó dáa ọmọ mi, mo gbà. Fifty-eight thousand.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 3.36
+  },
+  "Èdè Yorùbá|2vpthj": {
+   "text": "Hà, ẹ dín in kù ma! Ẹ ṣe é ní forty thousand.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 4.72
+  },
+  "Èdè Yorùbá|2vpthj|slow": {
+   "text": "Hà, ẹ dín in kù ma! Ẹ ṣe é ní forty thousand.",
+   "voice": "Kore",
+   "slow": true,
+   "seconds": 7.36
+  },
+  "Èdè Yorùbá|32yjui": {
+   "text": "Hà hà! Ọmọ mi, ṣé o fẹ́ kí n pàdánù ni? Fifty-five thousand.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 6.32
+  },
+  "Èdè Yorùbá|388thl": {
+   "text": "Mm. Kí lo fẹ́ rà?",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 2.52
+  },
+  "Èdè Yorùbá|3nfxtq": {
+   "text": "Ó dáa. Mo ti dì í.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 1.8
+  },
+  "Èdè Yorùbá|5r6wl4": {
+   "text": "Wá, wá! Ọmọ mi, mú u ní fifty-two thousand.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 3.72
+  },
+  "Èdè Yorùbá|9wu9rp": {
+   "text": "Ó dáa ma, mo ń lọ.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 1.92
+  },
+  "Èdè Yorùbá|9wu9rp|slow": {
+   "text": "Ó dáa ma, mo ń lọ.",
+   "voice": "Kore",
+   "slow": true,
+   "seconds": 4.12
+  },
+  "Èdè Yorùbá|ak4vqh": {
+   "text": "Yẹn ni! Káàárọ̀ ọmọ mi. Ṣé dáadáa ni?",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 4.08
+  },
+  "Èdè Yorùbá|hjojub": {
+   "text": "Ó dáa ma, ẹ bá mi dì í. Ẹ jọ̀ọ́, ẹ fi jàra sí i!",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 4.6
+  },
+  "Èdè Yorùbá|hjojub|slow": {
+   "text": "Ó dáa ma, ẹ bá mi dì í. Ẹ jọ̀ọ́, ẹ fi jàra sí i!",
+   "voice": "Kore",
+   "slow": true,
+   "seconds": 10.28
+  },
+  "Èdè Yorùbá|id76t9": {
+   "text": "Paint kan jẹ́ four thousand, agbọ̀n kan jẹ́ sixty thousand.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 3.76
+  },
+  "Èdè Yorùbá|immeln": {
+   "text": "Agbọ̀n kan jẹ́ sixty thousand.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 2.64
+  },
+  "Èdè Yorùbá|jm2dpm": {
+   "text": "Káàsán. Ṣé dáadáa ni?",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 2.08
+  },
+  "Èdè Yorùbá|jobalw": {
+   "text": "Mo ti fi jàra sí i. O ṣeun ọmọ mi, máa bọ̀ o!",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 4.28
+  },
+  "Èdè Yorùbá|m3fo2v": {
+   "text": "Bẹ́ẹ̀ ni. Paint ata kan jẹ́ three thousand. Kí n fi kún un?",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 4.52
+  },
+  "Èdè Yorùbá|mi4vz5": {
+   "text": "Káalẹ́. Ṣé dáadáa ni?",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 2.44
+  },
+  "Èdè Yorùbá|n954og": {
+   "text": "Eléyìí jẹ́ five hundred, paint kan jẹ́ four thousand, agbọ̀n kan jẹ́ sixty thousand. Tòmátì tí a ṣẹ̀ṣẹ̀ kó dé láàárọ̀ yìí ni o!",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 8.88
+  },
+  "Èdè Yorùbá|njijl4": {
+   "text": "Ẹ jọ̀ọ́ ma, báwo lẹ ṣe lé tòmátì yín?",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 3.72
+  },
+  "Èdè Yorùbá|njijl4|slow": {
+   "text": "Ẹ jọ̀ọ́ ma, báwo lẹ ṣe lé tòmátì yín?",
+   "voice": "Kore",
+   "slow": true,
+   "seconds": 6.0
+  },
+  "Èdè Yorùbá|of8040": {
+   "text": "Ẹ káalẹ́ ma",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 1.72
+  },
+  "Èdè Yorùbá|of8040|slow": {
+   "text": "Ẹ káalẹ́ ma",
+   "voice": "Kore",
+   "slow": true,
+   "seconds": 2.84
+  },
+  "Èdè Yorùbá|oj3y4z": {
+   "text": "O ṣé o, ọmọ mi! Kí lo fẹ́ rà?",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 3.44
+  },
+  "Èdè Yorùbá|oraua8": {
+   "text": "Káàárọ̀ ọmọ mi, ṣé dáadáa ni?",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 2.36
+  },
+  "Èdè Yorùbá|p2tphn": {
+   "text": "Ẹ káàsán ma",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 1.32
+  },
+  "Èdè Yorùbá|p2tphn|slow": {
+   "text": "Ẹ káàsán ma",
+   "voice": "Kore",
+   "slow": true,
+   "seconds": 2.64
+  },
+  "Èdè Yorùbá|r525ve": {
+   "text": "Káàsán ọmọ mi, ṣé dáadáa ni?",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 3.44
+  },
+  "Èdè Yorùbá|rddz5d": {
+   "text": "O ṣé o. Kí lo fẹ́ rà?",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 2.52
+  },
+  "Èdè Yorùbá|vq16vk": {
+   "text": "Ata rodo? Paint kan jẹ́ three thousand. Kí n fi kún un?",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 4.96
+  },
+  "Èdè Yorùbá|y9dogl": {
+   "text": "Kí lo fẹ́ rà?",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 1.52
+  },
+  "Èdè Yorùbá|yk1kcv": {
+   "text": "Káalẹ́ ọmọ mi, ṣé dáadáa ni?",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 3.0
+  },
+  "Èdè Yorùbá|yqt03m": {
+   "text": "Ó wọ́n díẹ̀ ma. Kí ni last price yín?",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 3.52
+  },
+  "Èdè Yorùbá|yqt03m|slow": {
+   "text": "Ó wọ́n díẹ̀ ma. Kí ni last price yín?",
+   "voice": "Kore",
+   "slow": true,
+   "seconds": 7.48
+  },
+  "Harshen Hausa|13d5hep": {
+   "text": "To, sai an jima.",
+   "voice": "Charon",
+   "slow": false,
+   "seconds": 2.28
+  },
+  "Harshen Hausa|1dsa5ja": {
+   "text": "Madalla! Allah ya albarkace ka. Sai an jima!",
+   "voice": "Charon",
+   "slow": false,
+   "seconds": 4.0
+  },
+  "Harshen Hausa|1dwooja": {
+   "text": "To, shikenan Alhaji. Na gode ƙwarai!",
+   "voice": "Charon",
+   "slow": false,
+   "seconds": 2.76
+  },
+  "Harshen Hausa|1dwooja|slow": {
+   "text": "To, shikenan Alhaji. Na gode ƙwarai!",
+   "voice": "Charon",
+   "slow": true,
+   "seconds": 8.28
+  },
+  "Harshen Hausa|1gcnvnk": {
+   "text": "Alhaji, nawa ne kuɗin jakar fata da dabino?",
+   "voice": "Charon",
+   "slow": false,
+   "seconds": 3.56
+  },
+  "Harshen Hausa|1gcnvnk|slow": {
+   "text": "Alhaji, nawa ne kuɗin jakar fata da dabino?",
+   "voice": "Charon",
+   "slow": true,
+   "seconds": 8.16
+  },
+  "Harshen Hausa|1moeiqg": {
+   "text": "Haba Alhaji! Dubu ɗaya da ɗari takwas.",
+   "voice": "Charon",
+   "slow": false,
+   "seconds": 2.92
+  },
+  "Harshen Hausa|1moeiqg|slow": {
+   "text": "Haba Alhaji! Dubu ɗaya da ɗari takwas.",
+   "voice": "Charon",
+   "slow": true,
+   "seconds": 6.6
+  },
+  "Harshen Hausa|1peie3b": {
+   "text": "To, madalla! Lafiya lau.",
+   "voice": "Charon",
+   "slow": false,
+   "seconds": 2.36
+  },
+  "Harshen Hausa|1saf9qb": {
+   "text": "Madalla. Allah ya kiyaye.",
+   "voice": "Charon",
+   "slow": false,
+   "seconds": 2.2
+  },
+  "Harshen Hausa|311e6g": {
+   "text": "Alhaji, sun yi tsada sosai. Don Allah a rage min zuwa dubu biyu da ɗari biyar.",
+   "voice": "Charon",
+   "slow": false,
+   "seconds": 4.8
+  },
+  "Harshen Hausa|311e6g|slow": {
+   "text": "Alhaji, sun yi tsada sosai. Don Allah a rage min zuwa dubu biyu da ɗari biyar.",
+   "voice": "Charon",
+   "slow": true,
+   "seconds": 11.32
+  },
+  "Harshen Hausa|386p1c": {
+   "text": "Sannu da yawa Alhaji! Ina kwana?",
+   "voice": "Charon",
+   "slow": false,
+   "seconds": 3.76
+  },
+  "Harshen Hausa|386p1c|slow": {
+   "text": "Sannu da yawa Alhaji! Ina kwana?",
+   "voice": "Charon",
+   "slow": true,
+   "seconds": 6.44
+  },
+  "Harshen Hausa|80nle3": {
+   "text": "Dubu uku da ɗari biyar.",
+   "voice": "Charon",
+   "slow": false,
+   "seconds": 2.08
+  },
+  "Harshen Hausa|fjvqu": {
+   "text": "Dubu uku da ɗari biyar ne.",
+   "voice": "Charon",
+   "slow": false,
+   "seconds": 1.92
+  },
+  "Harshen Hausa|hwer1j": {
+   "text": "Madalla. Dubu uku, shikenan.",
+   "voice": "Charon",
+   "slow": false,
+   "seconds": 3.6
+  },
+  "Harshen Hausa|jgnb6a": {
+   "text": "To. Na gode.",
+   "voice": "Charon",
+   "slow": false,
+   "seconds": 1.56
+  },
+  "Harshen Hausa|kjysk3": {
+   "text": "Lafiya lau.",
+   "voice": "Charon",
+   "slow": false,
+   "seconds": 1.96
+  },
+  "Harshen Hausa|odx9j5": {
+   "text": "To, don Allah na yarda. Dubu biyu da ɗari biyar.",
+   "voice": "Charon",
+   "slow": false,
+   "seconds": 3.48
+  },
+  "Harshen Hausa|qz03k3": {
+   "text": "Eh, dubu uku da ɗari biyar ne.",
+   "voice": "Charon",
+   "slow": false,
+   "seconds": 2.28
+  },
+  "Harshen Hausa|rsa7wa": {
+   "text": "Lafiya lau. Sannu.",
+   "voice": "Charon",
+   "slow": false,
+   "seconds": 2.08
+  },
+  "Harshen Hausa|v75all": {
+   "text": "Don Allah Alhaji, a rage min zuwa dubu uku.",
+   "voice": "Charon",
+   "slow": false,
+   "seconds": 2.8
+  },
+  "Harshen Hausa|v75all|slow": {
+   "text": "Don Allah Alhaji, a rage min zuwa dubu uku.",
+   "voice": "Charon",
+   "slow": true,
+   "seconds": 7.44
+  },
+  "Harshen Hausa|vghfjk": {
+   "text": "Jakar nan da dabino, naira dubu uku da ɗari biyar.",
+   "voice": "Charon",
+   "slow": false,
+   "seconds": 3.36
+  },
+  "Harshen Hausa|yii1v6": {
+   "text": "Lafiya lau! Sannu da zuwa, barka da warhaka.",
+   "voice": "Charon",
+   "slow": false,
+   "seconds": 3.6
+  },
+  "Harshen Hausa|zs0rh9": {
+   "text": "Haba! Wannan ba kuɗi ba ne. Dubu uku, ba ƙasa ba.",
+   "voice": "Charon",
+   "slow": false,
+   "seconds": 4.56
+  },
+  "Twi|1k0t4rb": {
+   "text": "Hmm. Maakye.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 1.92
+  },
+  "Twi|1nl4l3a": {
+   "text": "Ɛyɛ! Wo nim kasa. Bra, bɛhwɛ.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 4.32
+  },
+  "Twi|1ub5348": {
+   "text": "Yaa ɛna, Auntie",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 1.36
+  },
+  "Twi|oszmnd": {
+   "text": "Maakye oo.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 1.28
+  },
+  "Twi|qswey7": {
+   "text": "Aane, saa ara. Yaa ɛna. Ɛyɛ, me ba.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 5.8
+  },
+  "Twi|zq5j2w": {
+   "text": "Maakye, me ba! Bra bɛhwɛ me kente.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 3.44
+  }
+ }
+}
