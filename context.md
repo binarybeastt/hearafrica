@@ -78,7 +78,7 @@ top, not a requirement.
    - **✓ verified / ⚠ draft** labels per line, and a "we'd say it like this" correction button that feeds the bank.
 2. **Native-speaker review** of every hand-written lesson outside Yorùbá.
 3. **Moving each language's scripted voice to TTS** — one line in `src/lib/speech-engines.ts` per language, after someone fluent has listened to the result.
-4. **TTS quota — the real blocker.** `gemini-3.8-flash-tts` allows **100 requests a day** (and 10/minute) on the current tier, shared by every learner; one fresh browser's Iya Bisi lesson uses 25–45. When it runs out, lines fall back to the Live voice (shipped), but that brings back Live's clipping. Fix before moving more languages to TTS: generate each lesson's audio once and serve it as files (spread over a few days at 100/day), or upgrade the tier.
+4. **TTS quota: baking in progress.** `gemini-3.8-flash-tts` allows **100 requests a day**. Scripted lines are now baked to MP3 files (`npm run bake:audio`) and served from `public/audio`, so learners use no quota for them. **Baked:** all Yorùbá (60 incl. slow takes), all Hausa (27), 6 of 34 Twi. **Left:** 28 Twi, 28 Swahili — run `npm run bake:audio` once more after the quota resets (it resumes, and stops cleanly when the day's quota is spent). Avoid using TTS lessons while a bake runs; they draw on the same quota. Anything unbaked falls back to runtime TTS, then to the Live voice.
 
 ### Yorùbá
 
@@ -123,5 +123,5 @@ top, not a requirement.
 ## Shipping
 
 - Everything is merged into `main` and pushed; `server-live-tokens` points at the same commit.
-- Deploy target: Vercel recommended (nothing needs a long-running server). Set `GEMINI_API_KEY` in the host's environment, never with a `NEXT_PUBLIC_` prefix.
+- Deployed on Vercel at https://hearafrica.vercel.app. The project is connected to GitHub: **every push to `main` deploys**. `GEMINI_API_KEY` is set there as a production secret.
 - Checks: `npm test`, `npm run typecheck`, `npm run build` (dev server stopped), `npm run check:scenes`.
