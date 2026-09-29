@@ -87,21 +87,66 @@
   "Harshen Hausa|vghfjk": "ha/vghfjk.mp3",
   "Harshen Hausa|yii1v6": "ha/yii1v6.mp3",
   "Harshen Hausa|zs0rh9": "ha/zs0rh9.mp3",
+  "Kiswahili|10hh4kt": "sw/10hh4kt.mp3",
+  "Kiswahili|14w952t": "sw/14w952t.mp3",
+  "Kiswahili|18szeoq": "sw/18szeoq.mp3",
+  "Kiswahili|19vq8d0": "sw/19vq8d0.mp3",
+  "Kiswahili|1ct63ty": "sw/1ct63ty.mp3",
+  "Kiswahili|1ddb7yb": "sw/1ddb7yb.mp3",
+  "Kiswahili|1gc1bob": "sw/1gc1bob.mp3",
+  "Kiswahili|1j6x9ux": "sw/1j6x9ux.mp3",
+  "Kiswahili|1own5vn": "sw/1own5vn.mp3",
+  "Kiswahili|1s96zw7": "sw/1s96zw7.mp3",
+  "Kiswahili|1sb1b47": "sw/1sb1b47.mp3",
+  "Kiswahili|1sb1b47|slow": "sw/1sb1b47-slow.mp3",
+  "Kiswahili|1uab04j": "sw/1uab04j.mp3",
+  "Kiswahili|1vhfqvd": "sw/1vhfqvd.mp3",
+  "Kiswahili|1vjweg2": "sw/1vjweg2.mp3",
+  "Kiswahili|1ylqwyr": "sw/1ylqwyr.mp3",
+  "Kiswahili|4a8c77": "sw/4a8c77.mp3",
+  "Kiswahili|4a8c77|slow": "sw/4a8c77-slow.mp3",
+  "Kiswahili|d27k6k": "sw/d27k6k.mp3",
+  "Kiswahili|d27k6k|slow": "sw/d27k6k-slow.mp3",
+  "Kiswahili|degpoh": "sw/degpoh.mp3",
+  "Kiswahili|degpoh|slow": "sw/degpoh-slow.mp3",
+  "Kiswahili|em32sj": "sw/em32sj.mp3",
+  "Kiswahili|em32sj|slow": "sw/em32sj-slow.mp3",
+  "Kiswahili|k0x523": "sw/k0x523.mp3",
+  "Kiswahili|ktb0de": "sw/ktb0de.mp3",
+  "Kiswahili|mavsha": "sw/mavsha.mp3",
+  "Kiswahili|mavsha|slow": "sw/mavsha-slow.mp3",
   "Twi|11munfw": "ak/11munfw.mp3",
+  "Twi|11munfw|slow": "ak/11munfw-slow.mp3",
   "Twi|11ve42d": "ak/11ve42d.mp3",
+  "Twi|14j52tv": "ak/14j52tv.mp3",
   "Twi|15xtpv4": "ak/15xtpv4.mp3",
   "Twi|1811tu8": "ak/1811tu8.mp3",
+  "Twi|1811tu8|slow": "ak/1811tu8-slow.mp3",
+  "Twi|1b0ipyy": "ak/1b0ipyy.mp3",
+  "Twi|1b0ipyy|slow": "ak/1b0ipyy-slow.mp3",
+  "Twi|1cavk03": "ak/1cavk03.mp3",
+  "Twi|1flru0": "ak/1flru0.mp3",
   "Twi|1k0t4rb": "ak/1k0t4rb.mp3",
   "Twi|1nl4l3a": "ak/1nl4l3a.mp3",
+  "Twi|1o7s5bf": "ak/1o7s5bf.mp3",
+  "Twi|1otxqvx": "ak/1otxqvx.mp3",
   "Twi|1thi3cb": "ak/1thi3cb.mp3",
   "Twi|1tyj3tp": "ak/1tyj3tp.mp3",
+  "Twi|1tyj3tp|slow": "ak/1tyj3tp-slow.mp3",
   "Twi|1ub5348": "ak/1ub5348.mp3",
+  "Twi|1ub5348|slow": "ak/1ub5348-slow.mp3",
+  "Twi|1uq8cmz": "ak/1uq8cmz.mp3",
   "Twi|1w3800s": "ak/1w3800s.mp3",
   "Twi|7j7wwp": "ak/7j7wwp.mp3",
   "Twi|8buhvb": "ak/8buhvb.mp3",
+  "Twi|8buhvb|slow": "ak/8buhvb-slow.mp3",
+  "Twi|fbiqkc": "ak/fbiqkc.mp3",
   "Twi|oszmnd": "ak/oszmnd.mp3",
   "Twi|q06z79": "ak/q06z79.mp3",
+  "Twi|qqj02d": "ak/qqj02d.mp3",
   "Twi|qswey7": "ak/qswey7.mp3",
+  "Twi|r5p36c": "ak/r5p36c.mp3",
+  "Twi|rwo2cx": "ak/rwo2cx.mp3",
   "Twi|v3gqu1": "ak/v3gqu1.mp3",
   "Twi|zq5j2w": "ak/zq5j2w.mp3"
  },
@@ -628,17 +673,197 @@
    "slow": false,
    "seconds": 4.56
   },
+  "Kiswahili|10hh4kt": {
+   "text": "Sawa kabisa. Nauli ni mia moja, bwana.",
+   "voice": "Puck",
+   "slow": false,
+   "seconds": 2.76
+  },
+  "Kiswahili|14w952t": {
+   "text": "Unaenda wapi?",
+   "voice": "Puck",
+   "slow": false,
+   "seconds": 1.32
+  },
+  "Kiswahili|18szeoq": {
+   "text": "Dere, shukisha! Sawa, shuka.",
+   "voice": "Puck",
+   "slow": false,
+   "seconds": 3.36
+  },
+  "Kiswahili|19vq8d0": {
+   "text": "Poa! Unaenda wapi?",
+   "voice": "Puck",
+   "slow": false,
+   "seconds": 1.68
+  },
+  "Kiswahili|1ct63ty": {
+   "text": "Sawa. Kaa hapo.",
+   "voice": "Puck",
+   "slow": false,
+   "seconds": 1.92
+  },
+  "Kiswahili|1ddb7yb": {
+   "text": "Mimi si mzee, bwana! Sasa niambie, unaenda wapi?",
+   "voice": "Puck",
+   "slow": false,
+   "seconds": 5.04
+  },
+  "Kiswahili|1gc1bob": {
+   "text": "Poa sana. Sasa niambie, unaenda wapi?",
+   "voice": "Puck",
+   "slow": false,
+   "seconds": 3.6
+  },
+  "Kiswahili|1j6x9ux": {
+   "text": "Shuka.",
+   "voice": "Puck",
+   "slow": false,
+   "seconds": 1.08
+  },
+  "Kiswahili|1own5vn": {
+   "text": "Mia moja.",
+   "voice": "Puck",
+   "slow": false,
+   "seconds": 1.36
+  },
+  "Kiswahili|1s96zw7": {
+   "text": "Haha! Unajua mtaa. Sabini, ni mvua.",
+   "voice": "Puck",
+   "slow": false,
+   "seconds": 4.48
+  },
+  "Kiswahili|1sb1b47": {
+   "text": "Sasa, kondakta? Habari yako leo?",
+   "voice": "Puck",
+   "slow": false,
+   "seconds": 2.76
+  },
+  "Kiswahili|1sb1b47|slow": {
+   "text": "Sasa, kondakta? Habari yako leo?",
+   "voice": "Puck",
+   "slow": true,
+   "seconds": 5.6
+  },
+  "Kiswahili|1uab04j": {
+   "text": "Sawa, ingia. Nauli ni mia moja.",
+   "voice": "Puck",
+   "slow": false,
+   "seconds": 3.24
+  },
+  "Kiswahili|1vhfqvd": {
+   "text": "Ingia. Mia moja.",
+   "voice": "Puck",
+   "slow": false,
+   "seconds": 2.08
+  },
+  "Kiswahili|1vjweg2": {
+   "text": "Unaona mvua? Themanini, au shuka.",
+   "voice": "Puck",
+   "slow": false,
+   "seconds": 3.4
+  },
+  "Kiswahili|1ylqwyr": {
+   "text": "Sawa! Dere, shukisha! Karibu tena.",
+   "voice": "Puck",
+   "slow": false,
+   "seconds": 3.64
+  },
+  "Kiswahili|4a8c77": {
+   "text": "Naenda Westlands, tafadhali.",
+   "voice": "Puck",
+   "slow": false,
+   "seconds": 1.92
+  },
+  "Kiswahili|4a8c77|slow": {
+   "text": "Naenda Westlands, tafadhali.",
+   "voice": "Puck",
+   "slow": true,
+   "seconds": 3.84
+  },
+  "Kiswahili|d27k6k": {
+   "text": "Nishushe hapa, tafadhali.",
+   "voice": "Puck",
+   "slow": false,
+   "seconds": 1.72
+  },
+  "Kiswahili|d27k6k|slow": {
+   "text": "Nishushe hapa, tafadhali.",
+   "voice": "Puck",
+   "slow": true,
+   "seconds": 4.2
+  },
+  "Kiswahili|degpoh": {
+   "text": "Si ni hamsini kawaida, bwana?",
+   "voice": "Puck",
+   "slow": false,
+   "seconds": 2.04
+  },
+  "Kiswahili|degpoh|slow": {
+   "text": "Si ni hamsini kawaida, bwana?",
+   "voice": "Puck",
+   "slow": true,
+   "seconds": 4.52
+  },
+  "Kiswahili|em32sj": {
+   "text": "Sawa, mia moja.",
+   "voice": "Puck",
+   "slow": false,
+   "seconds": 1.84
+  },
+  "Kiswahili|em32sj|slow": {
+   "text": "Sawa, mia moja.",
+   "voice": "Puck",
+   "slow": true,
+   "seconds": 4.32
+  },
+  "Kiswahili|k0x523": {
+   "text": "Wapi? Sawa, shuka hapa.",
+   "voice": "Puck",
+   "slow": false,
+   "seconds": 2.68
+  },
+  "Kiswahili|ktb0de": {
+   "text": "Westi! Westi! Ingia haraka!",
+   "voice": "Puck",
+   "slow": false,
+   "seconds": 2.96
+  },
+  "Kiswahili|mavsha": {
+   "text": "Hapana! Hamsini tu!",
+   "voice": "Puck",
+   "slow": false,
+   "seconds": 2.28
+  },
+  "Kiswahili|mavsha|slow": {
+   "text": "Hapana! Hamsini tu!",
+   "voice": "Puck",
+   "slow": true,
+   "seconds": 5.4
+  },
   "Twi|11munfw": {
    "text": "Mepa wo kyɛw, kente ntoma yi ɛyɛ sɛn?",
    "voice": "Kore",
    "slow": false,
    "seconds": 2.6
   },
+  "Twi|11munfw|slow": {
+   "text": "Mepa wo kyɛw, kente ntoma yi ɛyɛ sɛn?",
+   "voice": "Kore",
+   "slow": true,
+   "seconds": 6.4
+  },
   "Twi|11ve42d": {
    "text": "Wo ani tew! Ɛnna wo ne me kasa yie. Cedi ahasa ne aduonu.",
    "voice": "Kore",
    "slow": false,
    "seconds": 5.16
+  },
+  "Twi|14j52tv": {
+   "text": "Ɛyɛ. Medaase.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 1.6
   },
   "Twi|15xtpv4": {
    "text": "Aane. Cedi ahanan ne aduonum.",
@@ -652,6 +877,36 @@
    "slow": false,
    "seconds": 3.56
   },
+  "Twi|1811tu8|slow": {
+   "text": "Ntoma yi nyɛ fɛ saa. Cedi ahanu.",
+   "voice": "Kore",
+   "slow": true,
+   "seconds": 7.08
+  },
+  "Twi|1b0ipyy": {
+   "text": "Ɛyɛ, Auntie. Medaase paa!",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 2.24
+  },
+  "Twi|1b0ipyy|slow": {
+   "text": "Ɛyɛ, Auntie. Medaase paa!",
+   "voice": "Kore",
+   "slow": true,
+   "seconds": 5.28
+  },
+  "Twi|1cavk03": {
+   "text": "Ɛyɛ oo.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 1.16
+  },
+  "Twi|1flru0": {
+   "text": "Hmm. Maadwo.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 2
+  },
   "Twi|1k0t4rb": {
    "text": "Hmm. Maakye.",
    "voice": "Kore",
@@ -663,6 +918,18 @@
    "voice": "Kore",
    "slow": false,
    "seconds": 4.32
+  },
+  "Twi|1o7s5bf": {
+   "text": "Nyame nhyira wo, me ba. Bra bio oo!",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 2.76
+  },
+  "Twi|1otxqvx": {
+   "text": "Maadwo, me ba! Bra bɛhwɛ me kente.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 3.96
   },
   "Twi|1thi3cb": {
    "text": "Cedi ahanan ne aduonum.",
@@ -676,11 +943,29 @@
    "slow": false,
    "seconds": 6
   },
+  "Twi|1tyj3tp|slow": {
+   "text": "Ɛyɛ fɛ paa, Auntie. Nanso ɛyɛ den — mepa wo kyɛw, te so kakra.",
+   "voice": "Kore",
+   "slow": true,
+   "seconds": 10.88
+  },
   "Twi|1ub5348": {
    "text": "Yaa ɛna, Auntie",
    "voice": "Kore",
    "slow": false,
    "seconds": 1.36
+  },
+  "Twi|1ub5348|slow": {
+   "text": "Yaa ɛna, Auntie",
+   "voice": "Kore",
+   "slow": true,
+   "seconds": 3.72
+  },
+  "Twi|1uq8cmz": {
+   "text": "Hmm. Maaha.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 2.84
   },
   "Twi|1w3800s": {
    "text": "Ɛyɛ, me ba. Cedi ahanan. Medaase.",
@@ -700,6 +985,18 @@
    "slow": false,
    "seconds": 2.6
   },
+  "Twi|8buhvb|slow": {
+   "text": "Mepa wo kyɛw, gye Cedi ahanan.",
+   "voice": "Kore",
+   "slow": true,
+   "seconds": 6.2
+  },
+  "Twi|fbiqkc": {
+   "text": "Maadwo oo.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 1.52
+  },
   "Twi|oszmnd": {
    "text": "Maakye oo.",
    "voice": "Kore",
@@ -712,11 +1009,29 @@
    "slow": false,
    "seconds": 2.8
   },
+  "Twi|qqj02d": {
+   "text": "Maaha oo.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 1.24
+  },
   "Twi|qswey7": {
    "text": "Aane, saa ara. Yaa ɛna. Ɛyɛ, me ba.",
    "voice": "Kore",
    "slow": false,
    "seconds": 5.8
+  },
+  "Twi|r5p36c": {
+   "text": "Maaha, me ba! Bra bɛhwɛ me kente.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 3.8
+  },
+  "Twi|rwo2cx": {
+   "text": "Medaase, me ba. Bra bio.",
+   "voice": "Kore",
+   "slow": false,
+   "seconds": 3.44
   },
   "Twi|v3gqu1": {
    "text": "Hwɛ yiye! Me nsa na ɛnwenee, dapɛn mmiɛnsa. Cedi ahanan ne aduonu.",

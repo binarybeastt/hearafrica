@@ -78,7 +78,7 @@ top, not a requirement.
    - **✓ verified / ⚠ draft** labels per line, and a "we'd say it like this" correction button that feeds the bank.
 2. **Native-speaker review** of every hand-written lesson outside Yorùbá.
 3. **Moving each language's scripted voice to TTS** — one line in `src/lib/speech-engines.ts` per language, after someone fluent has listened to the result.
-4. **TTS quota: baking in progress.** `gemini-3.8-flash-tts` allows **100 requests a day**. Scripted lines are now baked to MP3 files (`npm run bake:audio`) and served from `public/audio`, so learners use no quota for them. **Baked:** all Yorùbá (60 incl. slow takes), all Hausa (27), 6 of 34 Twi. **Left:** 28 Twi, 28 Swahili — run `npm run bake:audio` once more after the quota resets (it resumes, and stops cleanly when the day's quota is spent). Avoid using TTS lessons while a bake runs; they draw on the same quota. Anything unbaked falls back to runtime TTS, then to the Live voice.
+4. **TTS quota: all lessons baked.** `gemini-3.8-flash-tts` allows **100 requests a day**. Every scripted line (Yorùbá, Hausa, Twi, Swahili, incl. slow takes; 149 total) is baked to MP3 (`npm run bake:audio`) and served from `public/audio`, so learners use no quota for them. Rerun the bake only after changing a scripted line (`--redo=KEY` for one). Anything unbaked falls back to runtime TTS, then to the Live voice.
 
 ### Yorùbá
 
